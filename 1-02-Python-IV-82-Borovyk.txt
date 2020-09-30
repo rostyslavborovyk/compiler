@@ -1,2 +1,2 @@
 def main():
-    return 13
+    return 42

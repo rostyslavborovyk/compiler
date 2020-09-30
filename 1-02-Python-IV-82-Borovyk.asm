@@ -1,2 +1,2 @@
-mov eax, 13
+mov eax, 42
 mov b, eax

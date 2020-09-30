@@ -9,9 +9,12 @@ from my_token import Token
 class Parser:
     # todo modify expression to calculate arithmetic expressions
     """
-    main_func_expr: DEF WORD L_BRACKET R_BRACKET COLON (SLASH_N)? RETURN expression
-    expression: number | STRING
+    main_func_expr: DEF WORD L_BRACKET R_BRACKET COLON (SLASH_N)? RETURN exp
+    exp: exp binary_op exp | factor
+    factor: unary_op factor | number | STRING
     number: DECIMAL | BINARY
+    binary_op: DIV | MINUS
+    unary_op: MINUS
     """
 
     def __init__(self, tokens_list):
