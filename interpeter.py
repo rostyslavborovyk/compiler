@@ -25,8 +25,10 @@ class Interpreter:
 
     def _visit_BinaryAST(self, node: Union[NumAST, StringAST]):
         # print(f"visiting {node}")
+        # converting python binary to asm binary
         value = node.value[2:]
         value += "b"
+
         self.code_generator.add_write_to_eax_from_var(value)
         self.code_generator.add_write_to_b_from_eax()
 
@@ -34,6 +36,7 @@ class Interpreter:
         # print(f"visiting {node}")
         value = node.value
 
+        # wrapping string into single quotes
         value = "\'" + value[1:-1] + "\'"
         self.code_generator.add_write_to_eax_from_var(value)
         self.code_generator.add_write_to_b_from_eax(is_str=True)

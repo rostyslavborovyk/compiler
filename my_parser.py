@@ -1,19 +1,18 @@
 from typing import List
 
 # end of file
-from AST import AST, StringAST, BinaryAST, DecimalAST
+from AST import AST, StringAST, BinaryAST, DecimalAST, BinOpAST, UnOpAST
 from my_exceptions import InvalidSyntaxException, EOF
 from my_token import Token
 
 
 class Parser:
-    # todo modify expression to calculate arithmetic expressions
     """
     main_func_expr: DEF WORD L_BRACKET R_BRACKET COLON (SLASH_N)? RETURN exp
-    exp: exp binary_op exp | factor
-    factor: unary_op factor | number | STRING
+    exp: term (MINUS term)* | term  # "+" and other low priority operators can be added here
+    term: factor (DIV factor) | factor  # "*" and other high priority operators can be added here
+    factor: unary_op factor | number | STRING  # "(" exp ")" can be added here to handle recursion
     number: DECIMAL | BINARY
-    binary_op: DIV | MINUS
     unary_op: MINUS
     """
 
@@ -29,6 +28,11 @@ class Parser:
             self.current_token = self.tokens_list[self.pos]
         else:
             self.current_token = EOF
+
+    def _is_unary_op(self):
+        if self.current_token.tok_type in (Token.MINUS,):
+            return True
+        return False
 
     def _check(self, tok_type, value=None) -> None:
         """
@@ -50,23 +54,74 @@ class Parser:
         else:
             raise InvalidSyntaxException(f"Token {self.current_token} should not be here")
 
+    def _factor(self) -> AST:
+        """
+        factor: unary_op factor | number | STRING  # "(" exp ")" can be added here to handle recursion
+        """
+        if self.current_token == EOF:
+            raise InvalidSyntaxException("End of file")
+
+        node = None
+
+        token = self.current_token
+        if token.tok_type == Token.MINUS:
+            self._check(Token.MINUS)
+            node = UnOpAST(Token.MINUS, self._factor())
+
+        elif token.tok_type == Token.NUMBER_DECIMAL:  # todo maybe handle binary num too
+            self._check(Token.NUMBER_DECIMAL)
+            node = DecimalAST(token)
+
+        elif token.tok_type == Token.STRING:
+            self._check(Token.STRING)
+            node = StringAST(self.current_token)
+
+        if node is None:
+            raise InvalidSyntaxException("Wrong token in expression")
+
+        return node
+
+    def _term(self) -> AST:
+        """
+        term: factor (DIV factor) | factor  # "*" and other high priority operators can be added here
+        """
+        if self.current_token == EOF:
+            raise InvalidSyntaxException("End of file")
+
+        node = None
+
+        node = self._factor()
+        token = self.current_token
+        while self.current_token != EOF and self.current_token.tok_type in (Token.DIV,):
+            if token.tok_type == Token.DIV:
+                self._check(Token.DIV)
+            node = BinOpAST(node, token, self._factor())
+
+        if node is None:
+            raise InvalidSyntaxException("Wrong token in expression")
+
+        return node
+
     def _expression(self) -> AST:
         """
-        expression: number | STRING, also == DECIMAL | BINARY | STRING
+        exp: term (MINUS term)* | term  # "+" and other low priority operators can be added here
         """
         # while self.current_token != EOF:
         #     pass
 
         if self.current_token == EOF:
             raise InvalidSyntaxException("End of file")
+
         node = None
 
-        if self.current_token.tok_type == Token.STRING:
-            node = StringAST(self.current_token)
-        elif self.current_token.tok_type == Token.NUMBER_DECIMAL:
-            node = DecimalAST(self.current_token)
-        elif self.current_token.tok_type == Token.NUMBER_BINARY:
-            node = BinaryAST(self.current_token)
+        node = self._term()
+        token = self.current_token
+        while self.current_token != EOF and self.current_token.tok_type in (Token.MINUS,):
+            if token.tok_type == Token.MINUS:
+                self._check(Token.MINUS)
+            # some more operations ...
+
+            node = BinOpAST(node, token, self._term())
 
         if node is None:
             raise InvalidSyntaxException("Wrong token in expression")

@@ -9,6 +9,8 @@ class Token:
     NUMBER_DECIMAL = "NUMBER_DECIMAL"
     NUMBER_BINARY = "NUMBER_BINARY"
     STRING = "STRING"
+    MINUS = "MINUS"
+    DIV = "DIV"
 
     BUILTIN_WORDS = (
         "def",

@@ -21,6 +21,12 @@ class BinOpAST(AST):
         self.right: NumAST = right
 
 
+class UnOpAST(AST):
+    def __init__(self, op: Token, right):
+        self.op = op
+        self.right: NumAST = right
+
+
 class DecimalAST(NumAST):
     def __init__(self, *args, **kwargs):
         super(DecimalAST, self).__init__(*args, **kwargs)

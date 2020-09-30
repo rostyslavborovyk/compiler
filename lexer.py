@@ -82,40 +82,47 @@ class Lexer:
             return None
         return res
 
-    def _get_token(self, word):
+    def _get_token(self, lexeme):
+        """
+        Returns token from given lexeme
+        """
         tok_type = ""
-        if word == "(":
+        if lexeme == "(":
             tok_type = Token.L_BRACKET
-        elif word == ")":
+        elif lexeme == ")":
             tok_type = Token.R_BRACKET
-        elif word == ":":
+        elif lexeme == ":":
             tok_type = Token.COLON
-        elif word == "\\n":
+        elif lexeme == "\\n":
             tok_type = Token.SLASH_N
-        elif word[0] == "\"" and word[-1]:  # todo (maybe) handle length
+        elif lexeme[0] == "\"" and lexeme[-1]:  # todo (maybe) handle length
             tok_type = Token.STRING
+        elif lexeme == "/":
+            tok_type = Token.DIV
+        elif lexeme == "-":
+            tok_type = Token.MINUS
 
         # decimal number
-        elif word.isdigit():
+        elif lexeme.isdigit():
             tok_type = Token.NUMBER_DECIMAL
 
         # binary number
-        elif word[:2] == "0b":
+        elif lexeme[:2] == "0b":
             tok_type = Token.NUMBER_BINARY
 
         # token for builtin names
-        elif word.isalpha() and word in Token.BUILTIN_WORDS:
+        elif lexeme.isalpha() and lexeme in Token.BUILTIN_WORDS:
             tok_type = Token.BUILTIN_WORD
 
         # should be last
         # token for funcs and variables names
-        elif word.isalpha():
+        elif lexeme.isalpha():
             tok_type = Token.WORD
 
         if not tok_type:
-            raise UnrecognizedTokenException(f"Unrecognized token: {word}")
+            raise UnrecognizedTokenException(f"Unrecognized token: {lexeme}")
 
-        return Token(word, tok_type)
+        return Token(lexeme, tok_type)
 
     def get_tokens(self):
         tokens_list: List[Token] = []
@@ -148,6 +155,14 @@ class Lexer:
                 self._set_next_char()
             elif self.cur_char == ":":
                 token = self._get_token(":")
+                tokens_list.append(token)
+                self._set_next_char()
+            elif self.cur_char == "-":
+                token = self._get_token("-")
+                tokens_list.append(token)
+                self._set_next_char()
+            elif self.cur_char == "/":
+                token = self._get_token("/")
                 tokens_list.append(token)
                 self._set_next_char()
             elif self.cur_char == " ":
