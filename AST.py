@@ -15,9 +15,9 @@ class NumAST(AST):
 
 
 class BinOpAST(AST):
-    def __init__(self, left, op, right):
+    def __init__(self, left, op: Token, right):
         self.left: NumAST = left
-        self.token = self.op = op
+        self.op = op
         self.right: NumAST = right
 
 
