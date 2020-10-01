@@ -41,7 +41,7 @@ class Interpreter:
             return code, neg
         return ""
 
-    def _visit_UnOpAST(self, node: UnOpAST, is_negative, top_level_op):
+    def _visit_UnOpAST(self, node: UnOpAST, is_negative, top_level_op=False):
         if node.op.tok_type == Token.MINUS:
             is_negative = not is_negative
             n_right = self._visit(node.right, is_negative)
