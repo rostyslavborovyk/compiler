@@ -10,7 +10,7 @@ class Parser:
     """
     main_func_expr: DEF WORD L_BRACKET R_BRACKET COLON (SLASH_N)? RETURN exp
     exp: term (MINUS term)* | term  # "+" and other low priority operators can be added here
-    term: factor (DIV factor) | factor  # "*" and other high priority operators can be added here
+    term: factor (DIV factor)* | factor  # "*" and other high priority operators can be added here
     factor: L_BRACKET exp R_BRACKET | unary_op factor | number | STRING  # "(" exp ")" can be added here to handle recursion
     number: DECIMAL | BINARY
     unary_op: MINUS
@@ -89,7 +89,7 @@ class Parser:
 
     def _term(self) -> AST:
         """
-        term: factor (DIV factor) | factor  # "*" and other high priority operators can be added here
+        term: factor (DIV factor)* | factor  # "*" and other high priority operators can be added here
         """
         if self.current_token == EOF:
             raise InvalidSyntaxException("End of file")

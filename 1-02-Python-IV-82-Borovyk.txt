@@ -1,2 +1,2 @@
 def main():
-    return -(20 / -2)
+    return -(64 / -2) / -(-4 / -2)
