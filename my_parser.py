@@ -72,7 +72,7 @@ class Parser:
 
         if token.tok_type == Token.MINUS:
             self._check(Token.MINUS)
-            node = UnOpAST(Token.MINUS, self._factor())
+            node = UnOpAST(token, self._factor())
 
         elif token.tok_type == Token.NUMBER_DECIMAL:  # todo maybe handle binary num too
             self._check(Token.NUMBER_DECIMAL)
