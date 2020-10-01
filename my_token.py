@@ -3,12 +3,12 @@ class Token:
     L_BRACKET = "L_BRACKET"
     R_BRACKET = "R_BRACKET"
     COLON = "COLON"
-    BUILTIN_WORD = "BUILTIN_WORD"
-    WORD = "WORD"
+    BUILTIN_WORD = "BUILTIN_WORD"  # char sequence which corresponds to any BUILTIN_WORD
+    WORD = "WORD"  # char sequence which not corresponds to any BUILTIN_WORD
     SLASH_N = "SLASH_N"
     NUMBER_DECIMAL = "NUMBER_DECIMAL"
     NUMBER_BINARY = "NUMBER_BINARY"
-    STRING = "STRING"
+    STRING = "STRING"  # char sequence in ""
     MINUS = "MINUS"
     DIV = "DIV"
 
