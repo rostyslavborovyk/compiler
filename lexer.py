@@ -70,7 +70,9 @@ class Lexer:
         while self.cur_char.isdigit() and self.cur_char is not EOF:
             res += self.cur_char
             self._set_next_char()
-        self.skip_whitespace()
+
+        if self.cur_char == " ":
+            self.skip_whitespace()
         return res
 
     def _get_special_symbols(self):

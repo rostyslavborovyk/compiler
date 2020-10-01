@@ -11,7 +11,7 @@ class Parser:
     main_func_expr: DEF WORD L_BRACKET R_BRACKET COLON (SLASH_N)? RETURN exp
     exp: term (MINUS term)* | term  # "+" and other low priority operators can be added here
     term: factor (DIV factor) | factor  # "*" and other high priority operators can be added here
-    factor: unary_op factor | number | STRING  # "(" exp ")" can be added here to handle recursion
+    factor: L_BRACKET exp R_BRACKET | unary_op factor | number | STRING  # "(" exp ")" can be added here to handle recursion
     number: DECIMAL | BINARY
     unary_op: MINUS
     """
@@ -56,7 +56,7 @@ class Parser:
 
     def _factor(self) -> AST:
         """
-        factor: unary_op factor | number | STRING  # "(" exp ")" can be added here to handle recursion
+        factor: L_BRACKET exp R_BRACKET | unary_op factor | number | STRING
         """
         if self.current_token == EOF:
             raise InvalidSyntaxException("End of file")
@@ -64,6 +64,12 @@ class Parser:
         node = None
 
         token = self.current_token
+
+        if token.tok_type == Token.L_BRACKET:
+            self._check(Token.L_BRACKET)
+            node = self._expression()
+            self._check(Token.R_BRACKET)
+
         if token.tok_type == Token.MINUS:
             self._check(Token.MINUS)
             node = UnOpAST(Token.MINUS, self._factor())
