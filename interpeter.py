@@ -23,7 +23,8 @@ class Interpreter:
         if node.op.tok_type == Token.DIV:
             n_left = self._visit(node.left, False)
             n_right = self._visit(node.right, False)
-            neg = bool(sum((int(is_negative), int(n_left[1]), int(n_right[1]))) % 2)   # todo replace with xor
+            # neg = bool(sum((int(is_negative), int(n_left[1]), int(n_right[1]))) % 2)
+            neg = is_negative ^ n_left[1] ^ n_right[1]  # if even num of "-" then "+" else "-"
             code = ""
             code += f"{n_left[0]}\n"
             code += f"push eax\n"
@@ -46,9 +47,6 @@ class Interpreter:
             n_right = self._visit(node.right, is_negative)
             code = ""
             code += f"{n_right[0]}\n"
-            # code += "pop eax\n"
-            # code += "neg eax\n"
-            # is_negative = bool(sum((int(is_negative), int(n_right[1]))) % 2)  # todo replace with xor
             return code, n_right[1]
 
     def _visit_DecimalAST(self, node: Union[NumAST, StringAST], is_negative):
