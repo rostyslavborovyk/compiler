@@ -41,12 +41,14 @@ class Interpreter:
             return code, neg
         return ""
 
-    def _visit_UnOpAST(self, node: UnOpAST, is_negative):
+    def _visit_UnOpAST(self, node: UnOpAST, is_negative, top_level_op):
         if node.op.tok_type == Token.MINUS:
             is_negative = not is_negative
             n_right = self._visit(node.right, is_negative)
             code = ""
             code += f"{n_right[0]}\n"
+            if top_level_op and n_right[1]:
+                code += "neg eax\n"
             return code, n_right[1]
 
     def _visit_DecimalAST(self, node: Union[NumAST, StringAST], is_negative):
