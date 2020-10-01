@@ -20,6 +20,9 @@ class BinOpAST(AST):
         self.op = op
         self.right: NumAST = right
 
+    def __repr__(self):
+        return f"BinOpAST(op={self.op})"
+
 
 class UnOpAST(AST):
     def __init__(self, op: Token, right):

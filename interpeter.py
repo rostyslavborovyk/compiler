@@ -1,8 +1,9 @@
-from AST import AST, NumAST, StringAST, BinOpAST, UnOpAST
+from AST import AST, NumAST, StringAST, BinOpAST, UnOpAST, DecimalAST
 from typing import Union
 
 from code_generator import CodeGenerator
 from my_exceptions import NoVisitMethodException
+from my_token import Token
 
 
 class Interpreter:
@@ -10,50 +11,49 @@ class Interpreter:
         self.code_generator = CodeGenerator()
         self.ast = ast
 
-    def generic_visit(self, node):
+    def visit_exception(self, node):
         raise NoVisitMethodException(f"No visit_{type(node).__name__} method")
 
     def _visit(self, node: Union[NumAST, StringAST]):
         method_name = "_visit_" + type(node).__name__
-        visitor = getattr(self, method_name, self.generic_visit)
+        visitor = getattr(self, method_name, self.visit_exception)
         return visitor(node)
 
     def _visit_BinOpAST(self, node: BinOpAST):
-        print(f"visiting {node}")
-        self._visit(node.left)
-        self._visit(node.right)
-        # self.code_generator.add_write_to_eax_from_var(node.value)
-        # self.code_generator.add_write_to_b_from_eax()
+        if node.op.tok_type == Token.DIV:
+            code = ""
+            code += f"{self._visit(node.left)}\n"
+            code += f"push eax\n"
+            code += f"{self._visit(node.right)}\n"
+            code += f"push eax\n"
+            code += f"pop ebx\n"
+            code += f"pop eax\n"
+            code += f"idiv ebx\n"
+
+            return code
+        return ""
 
     def _visit_UnOpAST(self, node: UnOpAST):
-        print(f"visiting {node}")
-        self._visit(node.right)
-        # self.code_generator.add_write_to_eax_from_var(node.value)
-        # self.code_generator.add_write_to_b_from_eax()
+        # todo process type of un_op
+        code = ""
+        code += f"{self._visit(node.right)}\n"
+        # code += "pop eax\n"
+        code += "neg eax\n"
+        return code
 
     def _visit_DecimalAST(self, node: Union[NumAST, StringAST]):
-        print(f"visiting {node}")
-        # self.code_generator.add_write_to_eax_from_var(node.value)
-        # self.code_generator.add_write_to_b_from_eax()
+        code = ""
+        code += f"mov eax, {node.value}"
+        return code
 
     def _visit_BinaryAST(self, node: Union[NumAST, StringAST]):
         print(f"visiting {node}")
-        # converting python binary to asm binary
-        # value = node.value[2:]
-        # value += "b"
-        #
-        # self.code_generator.add_write_to_eax_from_var(value)
-        # self.code_generator.add_write_to_b_from_eax()
+        pass
 
     def _visit_StringAST(self, node: Union[NumAST, StringAST]):
         print(f"visiting {node}")
-        value = node.value
-
-        # wrapping string into single quotes
-        # value = "\'" + value[1:-1] + "\'"
-        # self.code_generator.add_write_to_eax_from_var(value)
-        # self.code_generator.add_write_to_b_from_eax(is_str=True)
+        pass
 
     def interpret(self):
-        self._visit(self.ast)
+        self.code_generator.generated_code = self._visit(self.ast)
         self.code_generator.write_to_file()

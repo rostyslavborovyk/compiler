@@ -8,10 +8,10 @@ def main():
     with open("1-02-Python-IV-82-Borovyk.txt", "rb") as f:
         text = str(f.read())[2:-1]  # trims b'str' to str
 
-    print(f"Text: {text}")
+    # print(f"Text: {text}")
     lexer = Lexer(text)
     tokens = lexer.get_tokens()
-    print(tokens)
+    # print(tokens)
     parser = Parser(tokens)
     ast = parser.parse()
     print(ast)
