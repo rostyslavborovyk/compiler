@@ -10,10 +10,11 @@ def main():
     # print(f"Text: {text}")
     lexer = Lexer(text)
     tokens = lexer.get_tokens()
-    print(tokens)
+    # print(tokens)
     parser = Parser(tokens)
     ast = parser.parse()
-    # print(ast)
+    ast.pprint()
+
     interpreter = Interpreter(ast)
     interpreter.interpret()
 
