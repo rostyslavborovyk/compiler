@@ -1,10 +1,10 @@
-from interpeter import Interpreter
-from lexer import Lexer
-from my_parser import Parser
+from code_generator.interpeter import Interpreter
+from lexer.lexer import Lexer
+from parser.my_parser import Parser
 
 
 def main():
-    with open("1-02-Python-IV-82-Borovyk.txt", "rb") as f:
+    with open("2-02-Python-IV-82-Borovyk.txt", "rb") as f:
         text = str(f.read())[2:-1]  # trims b'str' to str
 
     # print(f"Text: {text}")

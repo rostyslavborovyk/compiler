@@ -1,9 +1,9 @@
 from typing import List
 
 # end of file
-from AST import AST, StringAST, BinaryAST, DecimalAST, BinOpAST, UnOpAST
-from my_exceptions import InvalidSyntaxException, EOF
-from my_token import Token
+from parser.AST import AST, StringAST, DecimalAST, BinOpAST, UnOpAST
+from exceptions.my_exceptions import InvalidSyntaxException, EOF
+from lexer.my_token import Token
 
 
 class Parser:

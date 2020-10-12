@@ -1,9 +1,9 @@
-from AST import AST, NumAST, StringAST, BinOpAST, UnOpAST, DecimalAST
+from parser.AST import NumAST, StringAST, BinOpAST, UnOpAST
 from typing import Union
 
-from code_generator import CodeGenerator
-from my_exceptions import NoVisitMethodException
-from my_token import Token
+from code_generator.code_generator import CodeGenerator
+from exceptions.my_exceptions import NoVisitMethodException
+from lexer.my_token import Token
 
 
 class Interpreter:

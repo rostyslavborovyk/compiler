@@ -1,4 +1,4 @@
-from my_token import Token
+from lexer.my_token import Token
 
 
 class AST:

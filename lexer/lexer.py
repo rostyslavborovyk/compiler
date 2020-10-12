@@ -1,8 +1,8 @@
 from typing import List
 
-from my_exceptions import EOF
-from my_exceptions import UnrecognizedTokenException
-from my_token import Token
+from exceptions.my_exceptions import EOF
+from exceptions.my_exceptions import UnrecognizedTokenException
+from lexer.my_token import Token
 
 
 class Lexer:
