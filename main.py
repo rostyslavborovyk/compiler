@@ -13,7 +13,7 @@ def main():
     print(tokens)
     parser = Parser(tokens)
     ast = parser.parse()
-    # print(ast)
+    ast.pprint()
     interpreter = Interpreter(ast)
     interpreter.interpret()
 

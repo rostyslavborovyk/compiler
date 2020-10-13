@@ -2,7 +2,8 @@ from lexer.my_token import Token
 
 
 class AST:
-    pass
+    def pprint(self, depth=0):
+        pass
 
 
 class NumAST(AST):
@@ -23,16 +24,45 @@ class BinOpAST(AST):
     def __repr__(self):
         return f"BinOpAST(op={self.op})"
 
+    def pprint(self, depth=0):
+        indent = "\t" * depth
+        res = f"BinOpAST(\n" \
+              f"\t{indent}op={self.op}\n" \
+              f"\t{indent}left={self.left.pprint(depth+1)}" \
+              f"\t{indent}right={self.right.pprint(depth+1)}" \
+              f"{indent})\n"
+        if depth == 0:
+            print(res)
+        return res
+
 
 class UnOpAST(AST):
     def __init__(self, op: Token, right):
         self.op = op
         self.right: NumAST = right
 
+    def pprint(self, depth=0):
+        indent = "\t" * depth
+        res = f"UnOpAST(\n" \
+              f"\t{indent}op={self.op}\n" \
+              f"\t{indent}right={self.right.pprint(depth+1)}" \
+              f"{indent})\n"
+        if depth == 0:
+            print(res)
+        return res
+
 
 class DecimalAST(NumAST):
     def __init__(self, *args, **kwargs):
         super(DecimalAST, self).__init__(*args, **kwargs)
+
+    def pprint(self, depth=0):
+        indent = "\t" * depth
+        res = f"DecimalAST(value={self.value})\n" \
+
+        if depth == 0:
+            print(res)
+        return res
 
 
 class BinaryAST(NumAST):

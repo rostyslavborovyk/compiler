@@ -1,6 +1,5 @@
 from typing import List
 
-# end of file
 from my_parser.AST import AST, StringAST, DecimalAST, BinOpAST, UnOpAST
 from exceptions.my_exceptions import InvalidSyntaxException, EOF
 from lexer.my_token import Token
@@ -8,7 +7,8 @@ from lexer.my_token import Token
 
 class Parser:
     """
-    main_func_expr: DEF WORD L_BRACKET R_BRACKET COLON (SLASH_N)? RETURN exp
+    main_func_expr: DEF WORD L_BRACKET R_BRACKET COLON (SLASH_N)? (line_exp)*
+    line_exp: ID "=" exp | RETURN exp
     exp: term (MINUS term)* | term  # "+" and other low priority operators can be added here
     term: factor (DIV factor)* | factor  # "*" and other high priority operators can be added here
     factor: L_BRACKET exp R_BRACKET | unary_op factor | number | STRING  # "(" exp ")" can be added here to handle recursion
@@ -134,9 +134,12 @@ class Parser:
 
         return node
 
+    def _line_expression(self) -> AST:
+        pass
+
     def _main_func_expr(self) -> AST:
         """
-        main_func_expr: DEF WORD L_BRACKET R_BRACKET COLON (SLASH_N)? RETURN expression
+        main_func_expr: DEF WORD L_BRACKET R_BRACKET COLON (SLASH_N)? (line_exp)*
         """
         self._check(Token.BUILTIN_WORD, "def")
         self._check(Token.WORD)
@@ -146,7 +149,8 @@ class Parser:
         self._check(Token.SLASH_N)  # todo make presence of this token optional
         self._check(Token.BUILTIN_WORD, "return")
         node = self._expression()
-
+        # while self.current_token != EOF:
+        #     node = self._line_expression()
         self._set_next_token()
         if self.current_token != EOF:
             raise InvalidSyntaxException("To much tokens for main function")

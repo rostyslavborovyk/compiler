@@ -9,10 +9,10 @@ pop eax
 idiv ebx
 
 push eax
-mov eax, 16
+mov eax, 32
 
 push eax
-mov eax, 8
+mov eax, 16
 
 push eax
 pop ebx
@@ -22,7 +22,4 @@ idiv ebx
 push eax
 pop ebx
 pop eax
-mov edx, 1
-neg edx
-neg eax
 idiv ebx
