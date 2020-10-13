@@ -1,7 +1,7 @@
 from typing import List
 
 # end of file
-from parser.AST import AST, StringAST, DecimalAST, BinOpAST, UnOpAST
+from my_parser.AST import AST, StringAST, DecimalAST, BinOpAST, UnOpAST
 from exceptions.my_exceptions import InvalidSyntaxException, EOF
 from lexer.my_token import Token
 

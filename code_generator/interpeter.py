@@ -1,4 +1,4 @@
-from parser.AST import NumAST, StringAST, BinOpAST, UnOpAST
+from my_parser.AST import NumAST, StringAST, BinOpAST, UnOpAST
 from typing import Union
 
 from code_generator.code_generator import CodeGenerator
@@ -26,9 +26,9 @@ class Interpreter:
             # neg = bool(sum((int(is_negative), int(n_left[1]), int(n_right[1]))) % 2)
             neg = is_negative ^ n_left[1] ^ n_right[1]  # if even num of "-" then "+" else "-"
             code = ""
-            code += f"{n_left[0]}\n"
+            code += f"{n_left[0]}"
             code += f"push eax\n"
-            code += f"{n_right[0]}\n"
+            code += f"{n_right[0]}"
             code += f"push eax\n"
             code += f"pop ebx\n"
             code += f"pop eax\n"
@@ -46,7 +46,7 @@ class Interpreter:
             is_negative = not is_negative
             n_right = self._visit(node.right, is_negative)
             code = ""
-            code += f"{n_right[0]}\n"
+            code += f"{n_right[0]}"
             if top_level_op and n_right[1]:
                 code += "neg eax\n"
             return code, n_right[1]

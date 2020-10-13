@@ -1,6 +1,6 @@
 from code_generator.interpeter import Interpreter
 from lexer.lexer import Lexer
-from parser.my_parser import Parser
+from my_parser.my_parser import Parser
 
 
 def main():
