@@ -26,9 +26,9 @@ class Interpreter:
             # neg = bool(sum((int(is_negative), int(n_left[1]), int(n_right[1]))) % 2)
             neg = is_negative ^ n_left[1] ^ n_right[1]  # if even num of "-" then "+" else "-"
             code = ""
-            code += f"{n_left[0]}"
+            code += f"{n_left[0]}\n"
             code += f"push eax\n"
-            code += f"{n_right[0]}"
+            code += f"{n_right[0]}\n"
             code += f"push eax\n"
             code += f"pop ebx\n"
             code += f"pop eax\n"
@@ -53,7 +53,7 @@ class Interpreter:
 
     def _visit_DecimalAST(self, node: Union[NumAST, StringAST], is_negative):
         code = ""
-        code += f"mov eax, {node.value}"
+        code += f"mov eax, {node.value}\n"
         return code, is_negative
 
     def _visit_BinaryAST(self, node: Union[NumAST, StringAST]):
