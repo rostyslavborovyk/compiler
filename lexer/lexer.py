@@ -22,7 +22,7 @@ class Lexer:
         else:
             self.cur_char = EOF
 
-    def skip_whitespace(self):
+    def _skip_whitespace(self):
         if self.cur_char == " ":
             self._set_next_char()
         elif self.cur_char != EOF:
@@ -63,7 +63,7 @@ class Lexer:
             while self.cur_char in "01":
                 res += self.cur_char
                 self._set_next_char()
-            self.skip_whitespace()
+            self._skip_whitespace()
             return res
 
         # handling decimal number
@@ -72,7 +72,7 @@ class Lexer:
             self._set_next_char()
 
         if self.cur_char == " ":
-            self.skip_whitespace()
+            self._skip_whitespace()
         return res
 
     def _get_special_symbols(self):
@@ -83,6 +83,16 @@ class Lexer:
         if res == "\\r":
             return None
         return res
+
+    def handle_indents(self) -> List[Token]:
+        # todo move indent var to global level
+        indent = "    "
+        indents_ls = []
+        while self.text[self.pos: self.pos + 4] == indent:
+            indents_ls.append(Token(self.text[self.pos: self.pos + 4], Token.SLASH_T))
+            self.pos += 4
+        self.cur_char = self.text[self.pos]
+        return indents_ls
 
     def _get_token(self, lexeme):
         """
@@ -147,6 +157,12 @@ class Lexer:
                 if symbols:
                     token = self._get_token(symbols)
                     tokens_list.append(token)
+
+                    # handle indents after slash n
+                    if token.tok_type == Token.SLASH_N:
+                        indents = self.handle_indents()
+                        tokens_list.extend(indents)
+
             elif self.cur_char == "(":
                 token = self._get_token("(")
                 tokens_list.append(token)
@@ -168,6 +184,6 @@ class Lexer:
                 tokens_list.append(token)
                 self._set_next_char()
             elif self.cur_char == " ":
-                self.skip_whitespace()
+                self._skip_whitespace()
 
         return tokens_list

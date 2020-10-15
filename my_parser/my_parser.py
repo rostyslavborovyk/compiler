@@ -29,10 +29,10 @@ class Parser:
         else:
             self.current_token = EOF
 
-    def _is_unary_op(self):
-        if self.current_token.tok_type in (Token.MINUS,):
-            return True
-        return False
+    # def _is_unary_op(self):
+    #     if self.current_token.tok_type in (Token.MINUS,):
+    #         return True
+    #     return False
 
     def _check(self, tok_type, value=None) -> None:
         """
@@ -147,6 +147,7 @@ class Parser:
         self._check(Token.R_BRACKET)
         self._check(Token.COLON)
         self._check(Token.SLASH_N)  # todo make presence of this token optional
+        self._check(Token.SLASH_T)
         self._check(Token.BUILTIN_WORD, "return")
         node = self._expression()
         # while self.current_token != EOF:
