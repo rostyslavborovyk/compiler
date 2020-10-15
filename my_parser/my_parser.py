@@ -1,17 +1,19 @@
-from typing import List
+from typing import List, Type
 
-from my_parser.AST import AST, StringAST, DecimalAST, BinOpAST, UnOpAST
+from my_parser.AST import AST, StringAST, DecimalAST, BinOpAST, UnOpAST, AssignExpAST
 from exceptions.my_exceptions import InvalidSyntaxException, EOF
 from lexer.my_token import Token
 
 
 class Parser:
     """
-    main_func_expr: DEF WORD L_BRACKET R_BRACKET COLON (SLASH_N)? (line_exp)*
-    line_exp: ID "=" exp | RETURN exp
+    main_func_expr: DEF WORD L_BRACKET R_BRACKET COLON SLASH_N SLASH_T statement_list
+    statement_list: statement | statement SLASH_N SLASH_T* statement_list
+    statement: assignment_statement | RETURN exp
+    assignment_statement: ID "=" exp
     exp: term (MINUS term)* | term  # "+" and other low priority operators can be added here
     term: factor (DIV factor)* | factor  # "*" and other high priority operators can be added here
-    factor: L_BRACKET exp R_BRACKET | unary_op factor | number | STRING  # "(" exp ")" can be added here to handle recursion
+    factor: L_BRACKET exp R_BRACKET | unary_op factor | number | STRING
     number: DECIMAL | BINARY
     unary_op: MINUS
     """
@@ -44,7 +46,7 @@ class Parser:
         if self.current_token.tok_type == tok_type:
             if value is not None and self.current_token.value == value:
                 self._set_next_token()
-                return
+                return None
             elif value is not None and self.current_token.value != value:
                 raise InvalidSyntaxException(
                     f"Token value {self.current_token.value} is wrong "
@@ -54,7 +56,18 @@ class Parser:
         else:
             raise InvalidSyntaxException(f"Token {self.current_token} should not be here")
 
-    def _factor(self) -> AST:
+    def _is_specific_token(self, tok_type, value=None) -> bool:
+        if self.current_token == EOF:
+            raise InvalidSyntaxException("End of file")
+        if self.current_token.tok_type == tok_type:
+            if value is not None and self.current_token.value == value:
+                return True
+            elif value is not None and self.current_token.value != value:
+                return False
+        else:
+            return False
+
+    def _factor(self) -> Type[AST]:
         """
         factor: L_BRACKET exp R_BRACKET | unary_op factor | number | STRING
         """
@@ -87,14 +100,14 @@ class Parser:
 
         return node
 
-    def _term(self) -> AST:
+    def _term(self) -> Type[AST]:
         """
         term: factor (DIV factor)* | factor  # "*" and other high priority operators can be added here
         """
         if self.current_token == EOF:
             raise InvalidSyntaxException("End of file")
 
-        node = None
+        # node = None
 
         node = self._factor()
         token = self.current_token
@@ -108,7 +121,7 @@ class Parser:
 
         return node
 
-    def _expression(self) -> AST:
+    def _expression(self) -> Type[AST]:
         """
         exp: term (MINUS term)* | term  # "+" and other low priority operators can be added here
         """
@@ -134,19 +147,60 @@ class Parser:
 
         return node
 
-    def _line_expression(self) -> AST:
-        pass
-
-    def _main_func_expr(self) -> AST:
+    def _assignment_statement(self) -> Type[AST]:
         """
-        main_func_expr: DEF WORD L_BRACKET R_BRACKET COLON (SLASH_N)? (line_exp)*
+        assignment_statement: ID "=" exp
+        """
+        var_id = self.current_token
+        self._check(Token.WORD)
+        self._check(Token.ASSIGN)
+        exp = self._expression()
+
+        return AssignExpAST(var_id, exp)
+
+    def _statement(self) -> Type[AST]:
+        """
+        statement: assignment_statement | RETURN exp
+        """
+        node = None
+        if self._is_specific_token(Token.BUILTIN_WORD, Token.BUILTIN_WORDS["return"]):
+            node = self._expression()
+        elif self._is_specific_token(Token.WORD):  # todo set regexp to value to check var validity
+            node = self._assignment_statement()
+
+        if node is None:
+            raise InvalidSyntaxException("Not matches with any statement")
+
+        return node
+
+    def _statement_list(self) -> List[Type[AST]]:
+        """
+        statement_list: statement | statement SLASH_N SLASH_T* statement_list
+        """
+        statements = [self._statement()]
+
+        while self.current_token != EOF:
+            # handle new line
+            while self.current_token.tok_type == Token.SLASH_N:
+                self._check(Token.SLASH_N)
+
+            # handle indent
+            if self.current_token.tok_type == Token.SLASH_T:
+                self._check(Token.SLASH_T)
+            statements.append(self._statement())
+
+        return statements
+
+    def _main_func_expr(self) -> Type[AST]:
+        """
+        main_func_expr: DEF WORD L_BRACKET R_BRACKET COLON SLASH_N SLASH_T statement_list
         """
         self._check(Token.BUILTIN_WORD, "def")
         self._check(Token.WORD)
         self._check(Token.L_BRACKET)
         self._check(Token.R_BRACKET)
         self._check(Token.COLON)
-        self._check(Token.SLASH_N)  # todo make presence of this token optional
+        self._check(Token.SLASH_N)
         self._check(Token.SLASH_T)
         self._check(Token.BUILTIN_WORD, "return")
         node = self._expression()
@@ -158,5 +212,5 @@ class Parser:
 
         return node
 
-    def parse(self) -> AST:
+    def parse(self) -> Type[AST]:
         return self._main_func_expr()

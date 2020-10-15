@@ -15,6 +15,15 @@ class NumAST(AST):
         return f"NumASTNode({self.token}, {self.value})"
 
 
+class AssignExpAST(AST):
+    def __init__(self, var_id, exp):
+        self.var_id = var_id
+        self.exp = exp
+
+    def __repr__(self):
+        return f"AssignExpAST(var_id={self.var_id}, exp={self.exp})"
+
+
 class BinOpAST(AST):
     def __init__(self, left, op: Token, right):
         self.left: NumAST = left
@@ -28,8 +37,8 @@ class BinOpAST(AST):
         indent = "\t" * depth
         res = f"BinOpAST(\n" \
               f"\t{indent}op={self.op}\n" \
-              f"\t{indent}left={self.left.pprint(depth+1)}" \
-              f"\t{indent}right={self.right.pprint(depth+1)}" \
+              f"\t{indent}left={self.left.pprint(depth + 1)}" \
+              f"\t{indent}right={self.right.pprint(depth + 1)}" \
               f"{indent})\n"
         if depth == 0:
             print(res)
@@ -45,7 +54,7 @@ class UnOpAST(AST):
         indent = "\t" * depth
         res = f"UnOpAST(\n" \
               f"\t{indent}op={self.op}\n" \
-              f"\t{indent}right={self.right.pprint(depth+1)}" \
+              f"\t{indent}right={self.right.pprint(depth + 1)}" \
               f"{indent})\n"
         if depth == 0:
             print(res)
@@ -58,7 +67,7 @@ class DecimalAST(NumAST):
 
     def pprint(self, depth=0):
         indent = "\t" * depth
-        res = f"DecimalAST(value={self.value})\n" \
+        res = f"DecimalAST(value={self.value})\n"
 
         if depth == 0:
             print(res)

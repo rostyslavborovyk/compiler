@@ -1,5 +1,5 @@
-from my_parser.AST import NumAST, StringAST, BinOpAST, UnOpAST
-from typing import Union
+from my_parser.AST import NumAST, StringAST, BinOpAST, UnOpAST, AST
+from typing import Union, Type
 
 from code_generator.code_generator import CodeGenerator
 from exceptions.my_exceptions import NoVisitMethodException
@@ -7,14 +7,14 @@ from lexer.my_token import Token
 
 
 class Interpreter:
-    def __init__(self, ast: Union[NumAST, StringAST]):
+    def __init__(self, ast: Type[AST]):
         self.code_generator = CodeGenerator()
         self.ast = ast
 
     def _visit_exception(self, node):
         raise NoVisitMethodException(f"No visit_{type(node).__name__} method")
 
-    def _visit(self, node: Union[NumAST, StringAST], *args):
+    def _visit(self, node: Type[AST], *args):
         method_name = "_visit_" + type(node).__name__
         visitor = getattr(self, method_name, self._visit_exception)
         return visitor(node, *args)
@@ -23,7 +23,6 @@ class Interpreter:
         if node.op.tok_type == Token.DIV:
             n_left = self._visit(node.left, False)
             n_right = self._visit(node.right, False)
-            # neg = bool(sum((int(is_negative), int(n_left[1]), int(n_right[1]))) % 2)
             neg = is_negative ^ n_left[1] ^ n_right[1]  # if even num of "-" then "+" else "-"
             code = ""
             code += f"{n_left[0]}\n"
