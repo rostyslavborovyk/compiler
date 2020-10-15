@@ -14,10 +14,11 @@ def main():
     pprint(tokens)
     parser = Parser(tokens)
     ast = parser.parse()
-    # ast.pprint()
+    ast.pprint()
     interpreter = Interpreter(ast)
     interpreter.interpret()
 
+    print(ast)
 
 if __name__ == '__main__':
     main()

@@ -11,13 +11,16 @@ class Interpreter:
         self.code_generator = CodeGenerator()
         self.ast = ast
 
-    def _visit_exception(self, node):
-        raise NoVisitMethodException(f"No visit_{type(node).__name__} method")
+    def _visit_exception(self, node, *args):
+        raise NoVisitMethodException(f"No _visit_{type(node).__name__} method")
 
     def _visit(self, node: Type[AST], *args):
         method_name = "_visit_" + type(node).__name__
         visitor = getattr(self, method_name, self._visit_exception)
         return visitor(node, *args)
+
+    def _visit_StatementsListAST(self, node, *args):
+        pass
 
     def _visit_BinOpAST(self, node: BinOpAST, is_negative, top_level_op=False):
         if node.op.tok_type == Token.DIV:

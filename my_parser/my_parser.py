@@ -1,6 +1,6 @@
 from typing import List, Type
 
-from my_parser.AST import AST, StringAST, DecimalAST, BinOpAST, UnOpAST, AssignExpAST
+from my_parser.AST import AST, StringAST, DecimalAST, BinOpAST, UnOpAST, AssignExpAST, StatementsListAST
 from exceptions.my_exceptions import InvalidSyntaxException, EOF
 from lexer.my_token import Token
 
@@ -64,6 +64,7 @@ class Parser:
                 return True
             elif value is not None and self.current_token.value != value:
                 return False
+            return True
         else:
             return False
 
@@ -96,7 +97,7 @@ class Parser:
             node = StringAST(self.current_token)
 
         if node is None:
-            raise InvalidSyntaxException("Wrong token in expression")
+            raise InvalidSyntaxException("Wrong token in factor expression")
 
         return node
 
@@ -117,7 +118,7 @@ class Parser:
             node = BinOpAST(node, token, self._factor())
 
         if node is None:
-            raise InvalidSyntaxException("Wrong token in expression")
+            raise InvalidSyntaxException("Wrong token in term expression")
 
         return node
 
@@ -164,6 +165,7 @@ class Parser:
         """
         node = None
         if self._is_specific_token(Token.BUILTIN_WORD, Token.BUILTIN_WORDS["return"]):
+            self._check(Token.BUILTIN_WORD, Token.BUILTIN_WORDS["return"])
             node = self._expression()
         elif self._is_specific_token(Token.WORD):  # todo set regexp to value to check var validity
             node = self._assignment_statement()
@@ -173,7 +175,7 @@ class Parser:
 
         return node
 
-    def _statement_list(self) -> List[Type[AST]]:
+    def _statement_list(self) -> Type[AST]:
         """
         statement_list: statement | statement SLASH_N SLASH_T* statement_list
         """
@@ -188,8 +190,8 @@ class Parser:
             if self.current_token.tok_type == Token.SLASH_T:
                 self._check(Token.SLASH_T)
             statements.append(self._statement())
-
-        return statements
+        node = StatementsListAST(statements)
+        return node
 
     def _main_func_expr(self) -> Type[AST]:
         """
@@ -202,8 +204,9 @@ class Parser:
         self._check(Token.COLON)
         self._check(Token.SLASH_N)
         self._check(Token.SLASH_T)
-        self._check(Token.BUILTIN_WORD, "return")
-        node = self._expression()
+        # self._check(Token.BUILTIN_WORD, "return")
+        # node = self._expression()
+        node = self._statement_list()
         # while self.current_token != EOF:
         #     node = self._line_expression()
         self._set_next_token()

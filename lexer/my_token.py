@@ -7,7 +7,7 @@ class Token:
     WORD = "WORD"  # char sequence which not corresponds to any BUILTIN_WORD
     SLASH_N = "SLASH_N"
     SLASH_T = "SLASH_T"
-    ASSIGN = "="
+    ASSIGN = "ASSIGN"
     NUMBER_DECIMAL = "NUMBER_DECIMAL"
     NUMBER_BINARY = "NUMBER_BINARY"
     STRING = "STRING"  # char sequence in ""

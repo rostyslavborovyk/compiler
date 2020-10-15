@@ -105,6 +105,8 @@ class Lexer:
             tok_type = Token.R_BRACKET
         elif lexeme == ":":
             tok_type = Token.COLON
+        elif lexeme == "=":
+            tok_type = Token.ASSIGN
         elif lexeme == "\\n":
             tok_type = Token.SLASH_N
         elif lexeme[0] == "\"" and lexeme[-1]:  # todo (maybe) handle length
@@ -173,6 +175,10 @@ class Lexer:
                 self._set_next_char()
             elif self.cur_char == ":":
                 token = self._get_token(":")
+                tokens_list.append(token)
+                self._set_next_char()
+            elif self.cur_char == "=":
+                token = self._get_token("=")
                 tokens_list.append(token)
                 self._set_next_char()
             elif self.cur_char == "-":

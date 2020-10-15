@@ -15,6 +15,11 @@ class NumAST(AST):
         return f"NumASTNode({self.token}, {self.value})"
 
 
+class StatementsListAST(AST):
+    def __init__(self, children):
+        self.children = children
+
+
 class AssignExpAST(AST):
     def __init__(self, var_id, exp):
         self.var_id = var_id
