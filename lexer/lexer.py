@@ -131,7 +131,7 @@ class Lexer:
         # should be last
         # token for funcs and variables names
         elif lexeme.isalpha():
-            tok_type = Token.WORD
+            tok_type = Token.ID
 
         if not tok_type:
             raise UnrecognizedTokenException(f"Unrecognized token: {lexeme}")

@@ -11,3 +11,7 @@ class InvalidSyntaxException(Exception):
 
 class NoVisitMethodException(Exception):
     pass
+
+
+class NoSuchVariableException(Exception):
+    pass

@@ -1,6 +1,6 @@
 from typing import List, Type
 
-from my_parser.AST import AST, StringAST, DecimalAST, BinOpAST, UnOpAST, AssignExpAST, StatementsListAST
+from my_parser.AST import AST, StringAST, DecimalAST, BinOpAST, UnOpAST, AssignExpAST, StatementsListAST, IdAST
 from exceptions.my_exceptions import InvalidSyntaxException, EOF
 from lexer.my_token import Token
 
@@ -13,7 +13,7 @@ class Parser:
     assignment_statement: ID "=" exp
     exp: term (MINUS term)* | term  # "+" and other low priority operators can be added here
     term: factor (DIV factor)* | factor  # "*" and other high priority operators can be added here
-    factor: L_BRACKET exp R_BRACKET | unary_op factor | number | STRING
+    factor: L_BRACKET exp R_BRACKET | unary_op factor | number | STRING | ID
     number: DECIMAL | BINARY
     unary_op: MINUS
     """
@@ -70,7 +70,7 @@ class Parser:
 
     def _factor(self) -> Type[AST]:
         """
-        factor: L_BRACKET exp R_BRACKET | unary_op factor | number | STRING
+        factor: L_BRACKET exp R_BRACKET | unary_op factor | number | STRING | ID
         """
         if self.current_token == EOF:
             raise InvalidSyntaxException("End of file")
@@ -95,6 +95,10 @@ class Parser:
         elif token.tok_type == Token.STRING:
             self._check(Token.STRING)
             node = StringAST(self.current_token)
+
+        elif token.tok_type == Token.ID:
+            self._check(Token.ID)
+            node = IdAST(token.value)
 
         if node is None:
             raise InvalidSyntaxException("Wrong token in factor expression")
@@ -153,7 +157,7 @@ class Parser:
         assignment_statement: ID "=" exp
         """
         var_id = self.current_token
-        self._check(Token.WORD)
+        self._check(Token.ID)
         self._check(Token.ASSIGN)
         exp = self._expression()
 
@@ -167,7 +171,7 @@ class Parser:
         if self._is_specific_token(Token.BUILTIN_WORD, Token.BUILTIN_WORDS["return"]):
             self._check(Token.BUILTIN_WORD, Token.BUILTIN_WORDS["return"])
             node = self._expression()
-        elif self._is_specific_token(Token.WORD):  # todo set regexp to value to check var validity
+        elif self._is_specific_token(Token.ID):  # todo set regexp to value to check var validity
             node = self._assignment_statement()
 
         if node is None:
@@ -198,7 +202,7 @@ class Parser:
         main_func_expr: DEF WORD L_BRACKET R_BRACKET COLON SLASH_N SLASH_T statement_list
         """
         self._check(Token.BUILTIN_WORD, "def")
-        self._check(Token.WORD)
+        self._check(Token.ID)
         self._check(Token.L_BRACKET)
         self._check(Token.R_BRACKET)
         self._check(Token.COLON)

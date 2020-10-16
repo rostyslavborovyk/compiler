@@ -1,8 +1,8 @@
-from my_parser.AST import NumAST, StringAST, BinOpAST, UnOpAST, AST, StatementsListAST
-from typing import Union, Type
+from my_parser.AST import NumAST, StringAST, BinOpAST, UnOpAST, AST, StatementsListAST, AssignExpAST, IdAST
+from typing import Union, Type, Dict
 
 from code_generator.code_generator import CodeGenerator
-from exceptions.my_exceptions import NoVisitMethodException
+from exceptions.my_exceptions import NoVisitMethodException, NoSuchVariableException
 from lexer.my_token import Token
 
 
@@ -10,6 +10,13 @@ class Interpreter:
     def __init__(self, ast: Type[AST]):
         self.code_generator = CodeGenerator()
         self.ast = ast
+
+        # var_id: offset
+        self.var_map: Dict[str, int] = dict()
+        self.var_offset = 0
+
+    def _decrement_offset(self) -> None:
+        self.var_offset -= 4
 
     def _visit_exception(self, node, *args):
         raise NoVisitMethodException(f"No _visit_{type(node).__name__} method")
@@ -20,8 +27,35 @@ class Interpreter:
         return visitor(node, *args)
 
     def _visit_StatementsListAST(self, node: StatementsListAST, *args):
-        node = self._visit(node.children[0], *args)
+        for child in node.children:
+            self._visit(child, *args)
+            # optional indent after each statement
+            self.code_generator.add("\n")
         return node
+
+    def _visit_AssignExpAST(self, node: AssignExpAST, is_negative, top_level_op=False):
+        var_id = node.var_id.value
+
+        self._visit(node.exp, is_negative, top_level_op)
+
+        # assigning new variable
+        if var_id not in self.var_map:
+            self.code_generator.add("push eax")
+            self._decrement_offset()
+            self.var_map.update({var_id: self.var_offset})
+
+        # assigning existing variable
+        else:
+            var_offset = self.var_map.get(var_id)
+            self.code_generator.add(f"mov [ebp - {-var_offset}], eax")
+
+    def _visit_IdAST(self, node: IdAST, is_negative, top_level_op=False):
+        var_offset = self.var_map.get(node.var_id)
+        if var_offset is None:
+            raise NoSuchVariableException(f"No such variable {node.var_id}")
+
+        self.code_generator.add(f"mov eax, [ebp - {-var_offset}]")
+        return is_negative
 
     def _visit_BinOpAST(self, node: BinOpAST, is_negative, top_level_op=False):
         if node.op.tok_type == Token.DIV:
@@ -50,9 +84,10 @@ class Interpreter:
                 self.code_generator.add("neg eax")
             return n_right
 
-    def _visit_DecimalAST(self, node: Union[NumAST, StringAST], is_negative):
+    def _visit_DecimalAST(self, node: Union[NumAST, StringAST], is_negative, top_level_op=False):
         self.code_generator.add(f"mov eax, {node.value}")
-
+        if top_level_op and is_negative:
+            self.code_generator.add("neg eax")
         return is_negative
 
     def _visit_BinaryAST(self, node: Union[NumAST, StringAST]):

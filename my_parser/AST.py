@@ -21,12 +21,20 @@ class StatementsListAST(AST):
 
 
 class AssignExpAST(AST):
-    def __init__(self, var_id, exp):
+    def __init__(self, var_id: Token, exp):
         self.var_id = var_id
         self.exp = exp
 
     def __repr__(self):
         return f"AssignExpAST(var_id={self.var_id}, exp={self.exp})"
+
+
+class IdAST(AST):
+    def __init__(self, var_id: str):
+        self.var_id = var_id
+
+    def __repr__(self):
+        return f"IdAST(var_id={self.var_id})"
 
 
 class BinOpAST(AST):

@@ -4,7 +4,7 @@ class Token:
     R_BRACKET = "R_BRACKET"
     COLON = "COLON"
     BUILTIN_WORD = "BUILTIN_WORD"  # char sequence which corresponds to any BUILTIN_WORD
-    WORD = "WORD"  # char sequence which not corresponds to any BUILTIN_WORD
+    ID = "ID"  # char sequence which not corresponds to any BUILTIN_WORD
     SLASH_N = "SLASH_N"
     SLASH_T = "SLASH_T"
     ASSIGN = "ASSIGN"
