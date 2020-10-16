@@ -26,38 +26,34 @@ class Interpreter:
     def _visit_BinOpAST(self, node: BinOpAST, is_negative, top_level_op=False):
         if node.op.tok_type == Token.DIV:
             n_left = self._visit(node.left, False)
+            self.code_generator.add(f"push eax")
             n_right = self._visit(node.right, False)
-            neg = is_negative ^ n_left[1] ^ n_right[1]  # if even num of "-" then "+" else "-"
-            code = ""
-            code += f"{n_left[0]}"
-            code += f"push eax\n"
-            code += f"{n_right[0]}"
-            code += f"push eax\n"
-            code += f"pop ebx\n"
-            code += f"pop eax\n"
-            if neg and top_level_op:
-                code += "mov edx, 1\n"
-                code += "neg edx\n"
-                code += "neg eax\n"
-            code += f"idiv ebx\n"
+            self.code_generator.add(f"push eax")
+            self.code_generator.add(f"pop ebx")
+            self.code_generator.add(f"pop eax")
 
-            return code, neg
+            neg = is_negative ^ n_left ^ n_right
+            if neg and top_level_op:
+                self.code_generator.add("mov edx, 1")
+                self.code_generator.add("neg edx")
+                self.code_generator.add("neg eax")
+            self.code_generator.add(f"idiv ebx")
+            return neg
         return ""
 
     def _visit_UnOpAST(self, node: UnOpAST, is_negative, top_level_op=False):
         if node.op.tok_type == Token.MINUS:
             is_negative = not is_negative
             n_right = self._visit(node.right, is_negative)
-            code = ""
-            code += f"{n_right[0]}"
-            if top_level_op and n_right[1]:
-                code += "neg eax\n"
-            return code, n_right[1]
+
+            if top_level_op and n_right:
+                self.code_generator.add("neg eax")
+            return n_right
 
     def _visit_DecimalAST(self, node: Union[NumAST, StringAST], is_negative):
-        code = ""
-        code += f"mov eax, {node.value}\n"
-        return code, is_negative
+        self.code_generator.add(f"mov eax, {node.value}")
+
+        return is_negative
 
     def _visit_BinaryAST(self, node: Union[NumAST, StringAST]):
         print(f"visiting {node}")
@@ -68,5 +64,5 @@ class Interpreter:
         pass
 
     def interpret(self):
-        self.code_generator.generated_code = self._visit(self.ast, False, True)[0]
+        self._visit(self.ast, False, True)
         self.code_generator.write_to_file()
