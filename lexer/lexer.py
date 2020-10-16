@@ -160,7 +160,7 @@ class Lexer:
                     token = self._get_token(symbols)
                     tokens_list.append(token)
 
-                    # handle indents after slash n
+                    # handles indents after slash n
                     if token.tok_type == Token.SLASH_N:
                         indents = self.handle_indents()
                         tokens_list.extend(indents)

@@ -1,4 +1,4 @@
-from my_parser.AST import NumAST, StringAST, BinOpAST, UnOpAST, AST
+from my_parser.AST import NumAST, StringAST, BinOpAST, UnOpAST, AST, StatementsListAST
 from typing import Union, Type
 
 from code_generator.code_generator import CodeGenerator
@@ -19,8 +19,9 @@ class Interpreter:
         visitor = getattr(self, method_name, self._visit_exception)
         return visitor(node, *args)
 
-    def _visit_StatementsListAST(self, node, *args):
-        pass
+    def _visit_StatementsListAST(self, node: StatementsListAST, *args):
+        node = self._visit(node.children[0], *args)
+        return node
 
     def _visit_BinOpAST(self, node: BinOpAST, is_negative, top_level_op=False):
         if node.op.tok_type == Token.DIV:
@@ -28,9 +29,9 @@ class Interpreter:
             n_right = self._visit(node.right, False)
             neg = is_negative ^ n_left[1] ^ n_right[1]  # if even num of "-" then "+" else "-"
             code = ""
-            code += f"{n_left[0]}\n"
+            code += f"{n_left[0]}"
             code += f"push eax\n"
-            code += f"{n_right[0]}\n"
+            code += f"{n_right[0]}"
             code += f"push eax\n"
             code += f"pop ebx\n"
             code += f"pop eax\n"
