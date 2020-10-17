@@ -58,46 +58,22 @@ class Interpreter:
 
     def _visit_BinOpAST(self, node: BinOpAST) -> None:
         if node.op.tok_type == Token.DIV:
-            self._visit(node.left)
-            self.code_generator.add(f"push eax")
-            self._visit(node.right)
-            self.code_generator.add("push eax")
-            self.code_generator.add("pop ebx")
-            self.code_generator.add("pop eax")
-            self.code_generator.add("cdq")
-            self.code_generator.add("idiv ebx")
+            self.code_generator.div_op(
+                lambda: self._visit(node.left),
+                lambda: self._visit(node.right)
+            )
 
         elif node.op.tok_type == Token.MUL:
-            self._visit(node.left)
-            self.code_generator.add("push eax")
-            self._visit(node.right)
-            self.code_generator.add("push eax")
-            self.code_generator.add("pop eax")
-            self.code_generator.add("pop ebx")
-            self.code_generator.add("cdq")
-            self.code_generator.add("imul ebx")
+            self.code_generator.mul_op(
+                lambda: self._visit(node.left),
+                lambda: self._visit(node.right)
+            )
 
         elif node.op.tok_type == Token.BUILTIN_WORD and node.op.value == Token.BUILTIN_WORDS["or"]:
-            self._visit(node.left)
-            self.code_generator.add("cmp eax, 0")
-            self.code_generator.add("je _there")
-            self.code_generator.add("jmp _end1")
-
-            self.code_generator.add("_there:")
-            self._visit(node.right)
-            self.code_generator.add("cmp eax, 0")
-            self.code_generator.add("je _end0")
-            self.code_generator.add("jmp _end1")
-
-            self.code_generator.add("_end1:")
-            self.code_generator.add("mov eax, 1")
-            self.code_generator.add("jmp _end")
-
-            self.code_generator.add("_end0:")
-            self.code_generator.add("xor eax, eax")
-            self.code_generator.add("jmp _end")
-
-            self.code_generator.add("_end:")
+            self.code_generator.logical_or_op(
+                lambda: self._visit(node.left),
+                lambda: self._visit(node.right)
+            )
 
     def _visit_UnOpAST(self, node: UnOpAST) -> None:
         if node.op.tok_type == Token.MINUS:

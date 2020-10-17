@@ -14,7 +14,7 @@ class Parser:
     exp_logical: exp (OR exp)* | exp
     exp: term (MINUS term)* | term  # "+" and other low priority operators can be added here
     term: factor ((DIV | MUL) factor)* | factor
-    factor: L_BRACKET exp R_BRACKET | unary_op factor | number | STRING | ID
+    factor: L_BRACKET exp_logical R_BRACKET | unary_op factor | number | STRING | ID
     number: DECIMAL | BINARY
     unary_op: MINUS
     """
@@ -66,7 +66,7 @@ class Parser:
 
     def _factor(self) -> Type[AST]:
         """
-        factor: L_BRACKET exp R_BRACKET | unary_op factor | number | STRING | ID
+        factor: L_BRACKET exp_logical R_BRACKET | unary_op factor | number | STRING | ID
         """
         if self.current_token == EOF:
             raise InvalidSyntaxException("End of file")
@@ -77,7 +77,7 @@ class Parser:
 
         if token.tok_type == Token.L_BRACKET:
             self._check(Token.L_BRACKET)
-            node = self._expression()
+            node = self._exp_logical()
             self._check(Token.R_BRACKET)
 
         if token.tok_type == Token.MINUS:
