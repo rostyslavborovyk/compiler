@@ -13,7 +13,7 @@ class CodeGenerator:
         self.label_unique_id += 1
         return self.label_unique_id
 
-    def div_op(self, left: Callable, right: Callable) -> None:
+    def div_op(self, left: Callable[[], None], right: Callable[[], None]) -> None:
         left()
         self.add(f"push eax")
         right()
@@ -23,7 +23,7 @@ class CodeGenerator:
         self.add("cdq")
         self.add("idiv ebx")
 
-    def mul_op(self, left: Callable, right: Callable) -> None:
+    def mul_op(self, left: Callable[[], None], right: Callable[[], None]) -> None:
         left()
         self.add("push eax")
         right()
@@ -33,7 +33,7 @@ class CodeGenerator:
         self.add("cdq")
         self.add("imul ebx")
 
-    def logical_or_op(self, left: Callable, right: Callable) -> None:
+    def logical_or_op(self, left: Callable[[], None], right: Callable[[], None]) -> None:
         l1 = f"_there_{self._get_unique_id()}"
         l2 = f"_end1_{self._get_unique_id()}"
         l3 = f"_end0_{self._get_unique_id()}"
