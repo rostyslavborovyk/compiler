@@ -34,10 +34,12 @@ class CodeGenerator:
         self.add("imul ebx")
 
     def logical_or_op(self, left: Callable[[], None], right: Callable[[], None]) -> None:
-        l1 = f"_there_{self._get_unique_id()}"
-        l2 = f"_end1_{self._get_unique_id()}"
-        l3 = f"_end0_{self._get_unique_id()}"
-        l4 = f"_end_{self._get_unique_id()}"
+        unique_id = self._get_unique_id()
+
+        l1 = f"_there_{unique_id}"
+        l2 = f"_end1_{unique_id}"
+        l3 = f"_end0_{unique_id}"
+        l4 = f"_end_{unique_id}"
 
         left()
         self.add("cmp eax, 0")
