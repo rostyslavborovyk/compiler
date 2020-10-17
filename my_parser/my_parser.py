@@ -31,11 +31,6 @@ class Parser:
         else:
             self.current_token = EOF
 
-    # def _is_unary_op(self):
-    #     if self.current_token.tok_type in (Token.MINUS,):
-    #         return True
-    #     return False
-
     def _check(self, tok_type, value=None) -> None:
         """
         Checks if cur_token of corresponding type, if so checks if value corresponds and sets the next token
@@ -130,8 +125,6 @@ class Parser:
         """
         exp: term (MINUS term)* | term  # "+" and other low priority operators can be added here
         """
-        # while self.current_token != EOF:
-        #     pass
 
         if self.current_token == EOF:
             raise InvalidSyntaxException("End of file")
@@ -208,11 +201,9 @@ class Parser:
         self._check(Token.COLON)
         self._check(Token.SLASH_N)
         self._check(Token.SLASH_T)
-        # self._check(Token.BUILTIN_WORD, "return")
-        # node = self._expression()
+
         node = self._statement_list()
-        # while self.current_token != EOF:
-        #     node = self._line_expression()
+
         self._set_next_token()
         if self.current_token != EOF:
             raise InvalidSyntaxException("To much tokens for main function")
