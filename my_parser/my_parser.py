@@ -12,7 +12,7 @@ class Parser:
     statement: assignment_statement | RETURN exp
     assignment_statement: ID "=" exp
     exp: term (MINUS term)* | term  # "+" and other low priority operators can be added here
-    term: factor (DIV factor)* | factor  # "*" and other high priority operators can be added here
+    term: factor ((DIV | MUL) factor)* | factor
     factor: L_BRACKET exp R_BRACKET | unary_op factor | number | STRING | ID
     number: DECIMAL | BINARY
     unary_op: MINUS
@@ -102,7 +102,7 @@ class Parser:
 
     def _term(self) -> Type[AST]:
         """
-        term: factor (DIV factor)* | factor  # "*" and other high priority operators can be added here
+        term: factor ((DIV | MUL) factor)* | factor
         """
         if self.current_token == EOF:
             raise InvalidSyntaxException("End of file")
@@ -111,9 +111,11 @@ class Parser:
 
         node = self._factor()
         token = self.current_token
-        while self.current_token != EOF and self.current_token.tok_type in (Token.DIV,):
+        while self.current_token != EOF and self.current_token.tok_type in (Token.DIV, Token.MUL):
             if token.tok_type == Token.DIV:
                 self._check(Token.DIV)
+            elif token.tok_type == Token.MUL:
+                self._check(Token.MUL)
             node = BinOpAST(node, token, self._factor())
 
         if node is None:

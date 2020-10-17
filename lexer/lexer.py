@@ -94,7 +94,7 @@ class Lexer:
         self.cur_char = self.text[self.pos]
         return indents_ls
 
-    def _get_token(self, lexeme):
+    def _get_token(self, lexeme) -> Token:
         """
         Returns token from given lexeme
         """
@@ -113,6 +113,8 @@ class Lexer:
             tok_type = Token.STRING
         elif lexeme == "/":
             tok_type = Token.DIV
+        elif lexeme == "*":
+            tok_type = Token.MUL
         elif lexeme == "-":
             tok_type = Token.MINUS
 
@@ -183,6 +185,10 @@ class Lexer:
                 self._set_next_char()
             elif self.cur_char == "-":
                 token = self._get_token("-")
+                tokens_list.append(token)
+                self._set_next_char()
+            elif self.cur_char == "*":
+                token = self._get_token("*")
                 tokens_list.append(token)
                 self._set_next_char()
             elif self.cur_char == "/":

@@ -13,6 +13,7 @@ class Token:
     STRING = "STRING"  # char sequence in ""
     MINUS = "MINUS"
     DIV = "DIV"
+    MUL = "MUL"
 
     BUILTIN_WORDS = {
         "def": "def",

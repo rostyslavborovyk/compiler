@@ -1,33 +1,18 @@
-mov eax, 32
+mov eax, 12
 neg eax
 push eax
-mov eax, 2
+mov eax, 4
 push eax
-pop ebx
 pop eax
+pop ebx
 cdq
-idiv ebx
+imul ebx
 push eax
 
 
-mov eax, 32
+mov eax, 60
 push eax
-mov eax, 2
-push eax
-pop ebx
-pop eax
-cdq
-idiv ebx
-push eax
-mov eax, 2
-neg eax
-push eax
-mov eax, 2
-push eax
-pop ebx
-pop eax
-cdq
-idiv ebx
+mov eax, 15
 push eax
 pop ebx
 pop eax
@@ -37,27 +22,19 @@ push eax
 
 
 mov eax, [ebp - 4]
-push eax
-mov eax, 2
-neg eax
-push eax
-pop ebx
-pop eax
-cdq
-idiv ebx
 neg eax
 push eax
 mov eax, [ebp - 8]
 push eax
-mov eax, 8
-push eax
 pop ebx
 pop eax
 cdq
 idiv ebx
 push eax
-pop ebx
+mov eax, 3
+push eax
 pop eax
+pop ebx
 cdq
-idiv ebx
+imul ebx
 

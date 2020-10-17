@@ -64,9 +64,18 @@ class Interpreter:
             self.code_generator.add(f"push eax")
             self.code_generator.add(f"pop ebx")
             self.code_generator.add(f"pop eax")
-
             self.code_generator.add("cdq")
             self.code_generator.add("idiv ebx")
+
+        elif node.op.tok_type == Token.MUL:
+            self._visit(node.left)
+            self.code_generator.add(f"push eax")
+            self._visit(node.right)
+            self.code_generator.add(f"push eax")
+            self.code_generator.add(f"pop eax")
+            self.code_generator.add(f"pop ebx")
+            self.code_generator.add("cdq")
+            self.code_generator.add("imul ebx")
 
     def _visit_UnOpAST(self, node: UnOpAST) -> None:
         if node.op.tok_type == Token.MINUS:
