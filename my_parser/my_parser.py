@@ -10,7 +10,8 @@ class Parser:
     main_func_expr: DEF WORD L_BRACKET R_BRACKET COLON SLASH_N SLASH_T statement_list
     statement_list: statement | statement SLASH_N SLASH_T* statement_list
     statement: assignment_statement | RETURN exp
-    assignment_statement: ID "=" exp
+    assignment_statement: ID "=" exp_logical
+    exp_logical: exp (OR exp)* | exp
     exp: term (MINUS term)* | term  # "+" and other low priority operators can be added here
     term: factor ((DIV | MUL) factor)* | factor
     factor: L_BRACKET exp R_BRACKET | unary_op factor | number | STRING | ID
@@ -147,14 +148,38 @@ class Parser:
 
         return node
 
+    def _exp_logical(self) -> Type[AST]:
+        """
+        exp_logical: exp (OR exp)* | exp
+        """
+
+        if self.current_token == EOF:
+            raise InvalidSyntaxException("End of file")
+
+        node = None
+
+        node = self._expression()
+        token = self.current_token
+        while self.current_token != EOF and self.current_token.value in (Token.BUILTIN_WORDS["or"],):
+            if token.tok_type == Token.BUILTIN_WORD and token.value == Token.BUILTIN_WORDS["or"]:
+                self._check(Token.BUILTIN_WORD, Token.BUILTIN_WORDS["or"])
+            # some more operations ...
+
+            node = BinOpAST(node, token, self._expression())
+
+        if node is None:
+            raise InvalidSyntaxException("Wrong token in expression")
+
+        return node
+
     def _assignment_statement(self) -> Type[AST]:
         """
-        assignment_statement: ID "=" exp
+        assignment_statement: ID "=" exp_logical
         """
         var_id = self.current_token
         self._check(Token.ID)
         self._check(Token.ASSIGN)
-        exp = self._expression()
+        exp = self._exp_logical()
 
         return AssignExpAST(var_id, exp)
 

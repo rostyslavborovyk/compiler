@@ -17,7 +17,8 @@ class Token:
 
     BUILTIN_WORDS = {
         "def": "def",
-        "return": "return"
+        "return": "return",
+        "or": "or",
     }
 
     def __init__(self, value, tok_type):
