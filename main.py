@@ -5,7 +5,7 @@ from pprint import pprint
 
 
 def main():
-    with open("2-02-Python-IV-82-Borovyk.txt", "rb") as f:
+    with open("3-02-Python-IV-82-Borovyk.txt", "rb") as f:
         text = str(f.read())[2:-1]  # trims b'str' to str
 
     # print(f"Text: {bytes(text, encoding='utf-8')}")
@@ -14,7 +14,7 @@ def main():
     pprint(tokens)
     parser = Parser(tokens)
     ast = parser.parse()
-    ast.pprint()
+    ast.prettyAST()
     interpreter = Interpreter(ast)
     interpreter.interpret()
 

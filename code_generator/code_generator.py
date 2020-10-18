@@ -64,5 +64,5 @@ class CodeGenerator:
 
     def write_to_file(self):
         generated_string = "\n".join(self.generated_code)
-        with open("2-02-Python-IV-82-Borovyk.asm", "w") as f:
+        with open("3-02-Python-IV-82-Borovyk.asm", "w") as f:
             f.write(generated_string)
