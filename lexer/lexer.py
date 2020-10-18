@@ -22,6 +22,12 @@ class Lexer:
         else:
             self.cur_char = EOF
 
+    def _is_next_char(self, char):
+        if self.pos + 1 == len(self.text):
+            return False
+        elif self.text[self.pos + 1] == char:
+            return True
+
     def _skip_whitespace(self):
         if self.cur_char == " ":
             self._set_next_char()
@@ -55,7 +61,7 @@ class Lexer:
         res = ""
 
         # handling binary number
-        if self.cur_char == "0" and self.text[self.pos + 1] == "b":
+        if self.cur_char == "0" and self._is_next_char("b"):
             res += self.cur_char  # appending "0"
             self._set_next_char()
             res += self.cur_char  # appending "b"

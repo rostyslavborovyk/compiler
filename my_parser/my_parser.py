@@ -9,7 +9,7 @@ class Parser:
     """
     main_func_expr: DEF WORD L_BRACKET R_BRACKET COLON SLASH_N SLASH_T statement_list
     statement_list: statement | statement SLASH_N SLASH_T* statement_list
-    statement: assignment_statement | RETURN exp
+    statement: assignment_statement | RETURN exp_logical
     assignment_statement: ID "=" exp_logical
     exp_logical: exp (OR exp)* | exp
     exp: term (MINUS term)* | term  # "+" and other low priority operators can be added here
@@ -185,12 +185,12 @@ class Parser:
 
     def _statement(self) -> Type[AST]:
         """
-        statement: assignment_statement | RETURN exp
+        statement: assignment_statement | RETURN exp_logical
         """
         node = None
         if self._is_specific_token(Token.BUILTIN_WORD, Token.BUILTIN_WORDS["return"]):
             self._check(Token.BUILTIN_WORD, Token.BUILTIN_WORDS["return"])
-            node = self._expression()
+            node = self._exp_logical()
         elif self._is_specific_token(Token.ID):  # todo set regexp to value to check var validity
             node = self._assignment_statement()
 
