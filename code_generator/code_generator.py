@@ -21,6 +21,7 @@ class CodeGenerator:
         self.add("push eax")
         self.add("pop ebx")
         self.add("pop eax")
+        self.add(f"xor edx, edx")
         self.add("cdq")
         self.add("idiv ebx")
 
@@ -31,6 +32,7 @@ class CodeGenerator:
         self.add("push eax")
         self.add("pop eax")
         self.add("pop ebx")
+        self.add(f"xor edx, edx")
         self.add("cdq")
         self.add("imul ebx")
 
@@ -81,7 +83,6 @@ class CodeGenerator:
     def write_to_test_file(self):
         # adding prolog
         gc = [
-            "xor rdx, rdx",
             "push rbp",
             "mov rbp, rsp",
         ]

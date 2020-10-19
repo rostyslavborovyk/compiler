@@ -8,6 +8,7 @@ int main()
   	asm (
 
 	CODE
+
   		 : "=r" ( b )
   		 );
 	cout << b << endl;

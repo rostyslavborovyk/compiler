@@ -1,4 +1,6 @@
 def main():
-    a = 5
-    b = -6
-    return a * b
+    a = -5
+    b = 6
+    c = 1
+    d = 4
+    return (a * b) / d
