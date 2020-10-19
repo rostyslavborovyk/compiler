@@ -31,7 +31,7 @@ class Interpreter:
             self._visit(child)
 
             # optional indent after each statement
-            self.code_generator.add("\n")
+            # self.code_generator.add("\n")
 
     def _visit_AssignExpAST(self, node: AssignExpAST) -> None:
         var_id = node.var_id.value
