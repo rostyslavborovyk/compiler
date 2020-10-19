@@ -66,3 +66,24 @@ class CodeGenerator:
         generated_string = "\n".join(self.generated_code)
         with open("3-02-Python-IV-82-Borovyk.asm", "w") as f:
             f.write(generated_string)
+
+    def write_to_test_file(self):
+        self.gc = [f"xor rdx, rdx"]
+        self.gc.extend(self.generated_code)
+        self.generated_code = self.gc
+        self.generated_code = map(lambda x: x.replace("eax", "rax"), self.generated_code)
+        self.generated_code = map(lambda x: x.replace("ebx", "rbx"), self.generated_code)
+        self.generated_code = map(lambda x: x.replace("edx", "rdx"), self.generated_code)
+        generated_string = "\n\t".join(map(lambda x: f"\"{x};\"", self.generated_code))
+
+        with open("tests/test_template.cpp", "r") as f:
+
+            template = f.read()
+
+        template = template.replace("CODE", generated_string)
+
+        with open("tests/test_1.cpp", "w") as f:
+            # f.write(f"\"xor rdx, rdx;\"\n")
+            f.write(template)
+            # template = f.read()
+

@@ -95,3 +95,4 @@ class Interpreter:
     def interpret(self):
         self._visit(self.ast)
         self.code_generator.write_to_file()
+        self.code_generator.write_to_test_file()
