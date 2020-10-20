@@ -1,6 +1,6 @@
 mov eax, 5
 push eax
-mov eax, 6
+mov eax, 7
 neg eax
 push eax
 mov eax, [ebp - 4]

@@ -92,7 +92,8 @@ class Interpreter:
         print(f"visiting {node}")
         pass
 
-    def interpret(self):
+    def interpret(self, output_path, test):
         self._visit(self.ast)
-        self.code_generator.write_to_file()
-        self.code_generator.write_to_test_file()
+        if not test:
+            self.code_generator.write_to_file()
+        self.code_generator.write_to_test_file(output_path)

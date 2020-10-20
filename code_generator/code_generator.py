@@ -21,7 +21,7 @@ class CodeGenerator:
         self.add("push eax")
         self.add("pop ebx")
         self.add("pop eax")
-        self.add("cdq")
+        # self.add("cdq")
         self.add("idiv ebx")
 
     def mul_op(self, left: Callable[[], None], right: Callable[[], None]) -> None:
@@ -78,7 +78,7 @@ class CodeGenerator:
             res = re.sub(re.compile(r"\d+"), d, res)
         return res if res else string
 
-    def write_to_test_file(self):
+    def write_to_test_file(self, output_path):
         # adding prolog
         gc = [
             "xor rdx, rdx",
@@ -106,10 +106,12 @@ class CodeGenerator:
 
         generated_string = "\n\t".join(map(lambda x: f"\"{x};\"", self.generated_code))
 
-        with open("tests/test_template.cpp", "r") as f:
+        with open("build/build_template.cpp", "r") as f:
             template = f.read()
 
         template = template.replace("CODE", generated_string)
 
-        with open("tests/test_1.cpp", "w") as f:
+        path = output_path or "build/main.cpp"
+
+        with open(path, "w") as f:
             f.write(template)
