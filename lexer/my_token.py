@@ -4,18 +4,22 @@ class Token:
     R_BRACKET = "R_BRACKET"
     COLON = "COLON"
     BUILTIN_WORD = "BUILTIN_WORD"  # char sequence which corresponds to any BUILTIN_WORD
-    WORD = "WORD"  # char sequence which not corresponds to any BUILTIN_WORD
+    ID = "ID"  # char sequence which not corresponds to any BUILTIN_WORD
     SLASH_N = "SLASH_N"
+    SLASH_T = "SLASH_T"
+    ASSIGN = "ASSIGN"
     NUMBER_DECIMAL = "NUMBER_DECIMAL"
     NUMBER_BINARY = "NUMBER_BINARY"
     STRING = "STRING"  # char sequence in ""
     MINUS = "MINUS"
     DIV = "DIV"
+    MUL = "MUL"
 
-    BUILTIN_WORDS = (
-        "def",
-        "return"
-    )
+    BUILTIN_WORDS = {
+        "def": "def",
+        "return": "return",
+        "or": "or",
+    }
 
     def __init__(self, value, tok_type):
         self.value = value

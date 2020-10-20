@@ -1,8 +1,8 @@
 from typing import List
 
-from my_exceptions import EOF
-from my_exceptions import UnrecognizedTokenException
-from my_token import Token
+from exceptions.my_exceptions import EOF
+from exceptions.my_exceptions import UnrecognizedTokenException
+from lexer.my_token import Token
 
 
 class Lexer:
@@ -22,7 +22,13 @@ class Lexer:
         else:
             self.cur_char = EOF
 
-    def skip_whitespace(self):
+    def _is_next_char(self, char):
+        if self.pos + 1 == len(self.text):
+            return False
+        elif self.text[self.pos + 1] == char:
+            return True
+
+    def _skip_whitespace(self):
         if self.cur_char == " ":
             self._set_next_char()
         elif self.cur_char != EOF:
@@ -55,7 +61,7 @@ class Lexer:
         res = ""
 
         # handling binary number
-        if self.cur_char == "0" and self.text[self.pos + 1] == "b":
+        if self.cur_char == "0" and self._is_next_char("b"):
             res += self.cur_char  # appending "0"
             self._set_next_char()
             res += self.cur_char  # appending "b"
@@ -63,7 +69,7 @@ class Lexer:
             while self.cur_char in "01":
                 res += self.cur_char
                 self._set_next_char()
-            self.skip_whitespace()
+            self._skip_whitespace()
             return res
 
         # handling decimal number
@@ -72,7 +78,7 @@ class Lexer:
             self._set_next_char()
 
         if self.cur_char == " ":
-            self.skip_whitespace()
+            self._skip_whitespace()
         return res
 
     def _get_special_symbols(self):
@@ -84,7 +90,17 @@ class Lexer:
             return None
         return res
 
-    def _get_token(self, lexeme):
+    def handle_indents(self) -> List[Token]:
+        # todo move indent var to global level
+        indent = "    "
+        indents_ls = []
+        while self.text[self.pos: self.pos + 4] == indent:
+            indents_ls.append(Token(self.text[self.pos: self.pos + 4], Token.SLASH_T))
+            self.pos += 4
+        self.cur_char = self.text[self.pos]
+        return indents_ls
+
+    def _get_token(self, lexeme) -> Token:
         """
         Returns token from given lexeme
         """
@@ -95,12 +111,16 @@ class Lexer:
             tok_type = Token.R_BRACKET
         elif lexeme == ":":
             tok_type = Token.COLON
+        elif lexeme == "=":
+            tok_type = Token.ASSIGN
         elif lexeme == "\\n":
             tok_type = Token.SLASH_N
         elif lexeme[0] == "\"" and lexeme[-1]:  # todo (maybe) handle length
             tok_type = Token.STRING
         elif lexeme == "/":
             tok_type = Token.DIV
+        elif lexeme == "*":
+            tok_type = Token.MUL
         elif lexeme == "-":
             tok_type = Token.MINUS
 
@@ -119,7 +139,7 @@ class Lexer:
         # should be last
         # token for funcs and variables names
         elif lexeme.isalpha():
-            tok_type = Token.WORD
+            tok_type = Token.ID
 
         if not tok_type:
             raise UnrecognizedTokenException(f"Unrecognized token: {lexeme}")
@@ -147,6 +167,12 @@ class Lexer:
                 if symbols:
                     token = self._get_token(symbols)
                     tokens_list.append(token)
+
+                    # handles indents after slash n
+                    if token.tok_type == Token.SLASH_N:
+                        indents = self.handle_indents()
+                        tokens_list.extend(indents)
+
             elif self.cur_char == "(":
                 token = self._get_token("(")
                 tokens_list.append(token)
@@ -159,8 +185,16 @@ class Lexer:
                 token = self._get_token(":")
                 tokens_list.append(token)
                 self._set_next_char()
+            elif self.cur_char == "=":
+                token = self._get_token("=")
+                tokens_list.append(token)
+                self._set_next_char()
             elif self.cur_char == "-":
                 token = self._get_token("-")
+                tokens_list.append(token)
+                self._set_next_char()
+            elif self.cur_char == "*":
+                token = self._get_token("*")
                 tokens_list.append(token)
                 self._set_next_char()
             elif self.cur_char == "/":
@@ -168,6 +202,6 @@ class Lexer:
                 tokens_list.append(token)
                 self._set_next_char()
             elif self.cur_char == " ":
-                self.skip_whitespace()
+                self._skip_whitespace()
 
         return tokens_list
