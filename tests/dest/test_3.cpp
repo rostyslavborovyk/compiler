@@ -7,7 +7,6 @@ int main()
 	int b;
   	asm (
 
-	"xor rdx, rdx;"
 	"push rbp;"
 	"mov rbp, rsp;"
 	"mov rax, 2;"
@@ -32,6 +31,7 @@ int main()
 	"_end_1:;"
 	"mov rsp, rbp;"
 	"pop rbp;"
+
   		 : "=r" ( b )
   		 );
 	cout << b << endl;

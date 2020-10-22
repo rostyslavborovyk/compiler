@@ -22,7 +22,7 @@ class CodeGenerator:
         self.add("pop ebx")
         self.add("pop eax")
 
-        # self.add("cdq")
+        self.add("cqo")
 
         self.add("idiv ebx")
 
@@ -34,7 +34,7 @@ class CodeGenerator:
         self.add("pop eax")
         self.add("pop ebx")
         self.add(f"xor edx, edx")
-        self.add("cdq")
+        self.add("cqo")
         self.add("imul ebx")
 
     def logical_or_op(self, left: Callable[[], None], right: Callable[[], None]) -> None:
