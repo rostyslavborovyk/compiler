@@ -9,10 +9,10 @@ def main(text, output_path=None, test=False):
     lexer = Lexer(text)
     tokens = lexer.get_tokens()
 
-    # pprint(tokens)
+    pprint(tokens)
     parser = Parser(tokens)
     ast = parser.parse()
-    # ast.prettyAST()
+    ast.prettyAST()
     interpreter = Interpreter(ast)
     interpreter.interpret(output_path, test)
 

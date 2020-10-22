@@ -35,6 +35,15 @@ class CodeGenerator:
         self.add("cdq")
         self.add("imul ebx")
 
+    def plus_op(self, left: Callable[[], None], right: Callable[[], None]) -> None:
+        left()
+        self.add("push eax")
+        right()
+        self.add("push eax")
+        self.add("pop eax")
+        self.add("pop ebx")
+        self.add("add eax, ebx")
+
     def logical_or_op(self, left: Callable[[], None], right: Callable[[], None]) -> None:
         unique_id = self._get_unique_id()
 

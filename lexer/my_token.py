@@ -12,6 +12,7 @@ class Token:
     NUMBER_BINARY = "NUMBER_BINARY"
     STRING = "STRING"  # char sequence in ""
     MINUS = "MINUS"
+    PLUS = "PLUS"
     DIV = "DIV"
     MUL = "MUL"
 

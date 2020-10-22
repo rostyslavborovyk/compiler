@@ -12,7 +12,7 @@ class Parser:
     statement: assignment_statement | RETURN exp_logical
     assignment_statement: ID "=" exp_logical
     exp_logical: exp (OR exp)* | exp
-    exp: term (MINUS term)* | term  # "+" and other low priority operators can be added here
+    exp: term ((MINUS | PLUS) term)* | term
     term: factor ((DIV | MUL) factor)* | factor
     factor: L_BRACKET exp_logical R_BRACKET | unary_op factor | number | STRING | ID
     number: DECIMAL | BINARY
@@ -31,6 +31,11 @@ class Parser:
             self.current_token = self.tokens_list[self.pos]
         else:
             self.current_token = EOF
+
+    def _checkEOF(self):
+        if self.current_token == EOF:
+            return True
+        return False
 
     def _check(self, tok_type, value=None) -> None:
         """
@@ -126,7 +131,7 @@ class Parser:
 
     def _expression(self) -> Type[AST]:
         """
-        exp: term (MINUS term)* | term  # "+" and other low priority operators can be added here
+        exp: term ((MINUS | PLUS) term)* | term
         """
 
         if self.current_token == EOF:
@@ -136,11 +141,11 @@ class Parser:
 
         node = self._term()
         token = self.current_token
-        while self.current_token != EOF and self.current_token.tok_type in (Token.MINUS,):
+        while self.current_token != EOF and self.current_token.tok_type in (Token.MINUS, Token.PLUS):
             if token.tok_type == Token.MINUS:
                 self._check(Token.MINUS)
-            # some more operations ...
-
+            elif token.tok_type == Token.PLUS:
+                self._check(Token.PLUS)
             node = BinOpAST(node, token, self._term())
 
         if node is None:
@@ -205,10 +210,13 @@ class Parser:
         """
         statements = [self._statement()]
 
-        while self.current_token != EOF:
+        while not self._checkEOF():
             # handle new line
-            while self.current_token.tok_type == Token.SLASH_N:
+            if self.current_token.tok_type == Token.SLASH_N:
                 self._check(Token.SLASH_N)
+
+            if self._checkEOF():
+                break
 
             # handle indent
             if self.current_token.tok_type == Token.SLASH_T:

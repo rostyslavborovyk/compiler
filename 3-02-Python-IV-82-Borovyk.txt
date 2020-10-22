@@ -1,4 +1,2 @@
 def main():
-    a = 5
-    b = -7
-    return a * b
+    return 10 + 21 / 4 / 2

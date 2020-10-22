@@ -92,12 +92,13 @@ class Lexer:
 
     def handle_indents(self) -> List[Token]:
         # todo move indent var to global level
-        indent = "    "
+        tab_size = 4
+        indent = " " * tab_size
         indents_ls = []
-        while self.text[self.pos: self.pos + 4] == indent:
-            indents_ls.append(Token(self.text[self.pos: self.pos + 4], Token.SLASH_T))
-            self.pos += 4
-        self.cur_char = self.text[self.pos]
+        while self.text[self.pos: self.pos + tab_size] == indent:
+            indents_ls.append(Token(self.text[self.pos: self.pos + tab_size], Token.SLASH_T))
+            self.pos += tab_size
+            self.cur_char = self.text[self.pos]
         return indents_ls
 
     def _get_token(self, lexeme) -> Token:
@@ -123,6 +124,8 @@ class Lexer:
             tok_type = Token.MUL
         elif lexeme == "-":
             tok_type = Token.MINUS
+        elif lexeme == "+":
+            tok_type = Token.PLUS
 
         # decimal number
         elif lexeme.isdigit():
@@ -167,12 +170,6 @@ class Lexer:
                 if symbols:
                     token = self._get_token(symbols)
                     tokens_list.append(token)
-
-                    # handles indents after slash n
-                    if token.tok_type == Token.SLASH_N:
-                        indents = self.handle_indents()
-                        tokens_list.extend(indents)
-
             elif self.cur_char == "(":
                 token = self._get_token("(")
                 tokens_list.append(token)
@@ -193,6 +190,10 @@ class Lexer:
                 token = self._get_token("-")
                 tokens_list.append(token)
                 self._set_next_char()
+            elif self.cur_char == "+":
+                token = self._get_token("+")
+                tokens_list.append(token)
+                self._set_next_char()
             elif self.cur_char == "*":
                 token = self._get_token("*")
                 tokens_list.append(token)
@@ -202,6 +203,10 @@ class Lexer:
                 tokens_list.append(token)
                 self._set_next_char()
             elif self.cur_char == " ":
-                self._skip_whitespace()
+                indents = self.handle_indents()
+                if indents:
+                    tokens_list.extend(indents)
+                else:
+                    self._skip_whitespace()
 
         return tokens_list
