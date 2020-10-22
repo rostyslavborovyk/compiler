@@ -21,9 +21,7 @@ class CodeGenerator:
         self.add("push eax")
         self.add("pop ebx")
         self.add("pop eax")
-
-        self.add("cqo")
-
+        self.add("cdq")
         self.add("idiv ebx")
 
     def mul_op(self, left: Callable[[], None], right: Callable[[], None]) -> None:
@@ -34,7 +32,7 @@ class CodeGenerator:
         self.add("pop eax")
         self.add("pop ebx")
         self.add(f"xor edx, edx")
-        self.add("cqo")
+        self.add("cdq")
         self.add("imul ebx")
 
     def logical_or_op(self, left: Callable[[], None], right: Callable[[], None]) -> None:
@@ -95,6 +93,7 @@ class CodeGenerator:
         self.generated_code = map(lambda x: x.replace("ebx", "rbx"), self.generated_code)
         self.generated_code = map(lambda x: x.replace("edx", "rdx"), self.generated_code)
         self.generated_code = map(lambda x: x.replace("ebp", "rbp"), self.generated_code)
+        self.generated_code = map(lambda x: x.replace("cdq", "cqo"), self.generated_code)
 
         # doubling the offset from 4 bytes per var to 8 bytes (for 64 bit systems)
         self.generated_code = map(lambda x: self._double_offset(x), self.generated_code)

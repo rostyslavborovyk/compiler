@@ -21,22 +21,26 @@ def build(file_name: str) -> int:
 
 class Test1(TestCase):
 
-    def test_1(self):
-        res = build("test_1")
+    def test_01(self):
+        res = build("test_01")
         self.assertEqual(res, 8)
 
-    def test_2(self):
-        res = build("test_2")
+    def test_02(self):
+        res = build("test_02")
         self.assertEqual(res, -2)
 
-    def test_3(self):
-        res = build("test_3")
+    def test_03(self):
+        res = build("test_03")
         self.assertEqual(res, 1)
 
-    def test_4(self):
-        res = build("test_4")
+    def test_04(self):
+        res = build("test_04")
         self.assertEqual(res, -20)
 
-    def test_5(self):
-        res = build("test_5")
+    def test_05(self):
+        res = build("test_05")
         self.assertEqual(res, 100)
+
+    def test_06(self):
+        res = build("test_06")
+        self.assertEqual(res, -12340000)
