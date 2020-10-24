@@ -274,7 +274,8 @@ class Parser:
         if not self._checkEOF():
             while self._is_specific_token(Token.SLASH_T):
                 self._check(Token.SLASH_T)
-            self._check(Token.SLASH_N)
+            if self._is_specific_token(Token.SLASH_N):
+                self._check(Token.SLASH_N)
 
         # todo set here check end of block
         if self._end_of_block(nesting):
@@ -296,6 +297,8 @@ class Parser:
             if self._is_statement():
                 statements.append(self._statement(nesting))
                 if self._end_of_block(nesting):
+                    if self._is_specific_token(Token.SLASH_N):
+                        self._check(Token.SLASH_N)
                     break
 
         node = StatementsListAST(statements)

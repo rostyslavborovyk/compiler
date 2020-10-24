@@ -104,7 +104,7 @@ class CodeGenerator:
 
     def _double_offset(self, string: str) -> str:
         # doubling 4 byte offset to 8 bytes
-        res = re.search(re.compile(r"mov ..., \[rbp - \d+]"), string)
+        res = re.search(re.compile(r".*\[rbp - \d+].*"), string)
         if res:
             res = res.group(0)
             d = re.search(re.compile(r"\d+"), res).group(0)

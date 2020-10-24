@@ -16,7 +16,7 @@ int main()
 	"je _there_2;"
 	"jmp _end1_2;"
 	"_there_2:;"
-	"mov rax, 0;"
+	"mov rax, 1;"
 	"cmp rax, 0;"
 	"je _end0_2;"
 	"jmp _end1_2;"

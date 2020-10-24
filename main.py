@@ -8,10 +8,10 @@ def main(text, output_path=None, test=False):
     # print(f"Text: {bytes(text, encoding='utf-8')}")
     lexer = Lexer(text)
     tokens = lexer.get_tokens()
-    pprint(tokens)
+    # pprint(tokens)
     parser = Parser(tokens)
     ast = parser.parse()
-    ast.prettyAST()
+    # ast.prettyAST()
     interpreter = Interpreter(ast)
     interpreter.interpret(output_path, test)
 
