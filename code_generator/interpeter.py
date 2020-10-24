@@ -75,6 +75,12 @@ class Interpreter:
                 lambda: self._visit(node.right)
             )
 
+        elif node.op.tok_type == Token.MINUS:
+            self.code_generator.sub_op(
+                lambda: self._visit(node.left),
+                lambda: self._visit(node.right)
+            )
+
         elif node.op.tok_type == Token.BUILTIN_WORD and node.op.value == Token.BUILTIN_WORDS["or"]:
             self.code_generator.logical_or_op(
                 lambda: self._visit(node.left),

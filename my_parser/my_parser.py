@@ -9,7 +9,7 @@ class Parser:
     """
     main_func_expr: DEF WORD L_BRACKET R_BRACKET COLON SLASH_N statement_list
     statement_list: statement | statement SLASH_N SLASH_T* statement_list
-    statement: assignment_statement | RETURN exp_logical
+    statement: assignment_statement | RETURN exp_logical | conditional_statement
     assignment_statement: ID "=" exp_logical
     exp_logical: exp (OR exp)* | exp
     exp: term ((MINUS | PLUS) term)* | term
@@ -133,6 +133,7 @@ class Parser:
             elif token.tok_type == Token.MUL:
                 self._check(Token.MUL)
             node = BinOpAST(node, token, self._factor())
+            token = self.current_token
 
         if node is None:
             raise InvalidSyntaxException("Wrong token in term expression")
@@ -157,6 +158,7 @@ class Parser:
             elif token.tok_type == Token.PLUS:
                 self._check(Token.PLUS)
             node = BinOpAST(node, token, self._term())
+            token = self.current_token
 
         if node is None:
             raise InvalidSyntaxException("Wrong token in expression")
@@ -180,6 +182,7 @@ class Parser:
                 self._check(Token.BUILTIN_WORD, Token.BUILTIN_WORDS["or"])
 
             node = BinOpAST(node, token, self._expression())
+            token = self.current_token
 
         if node is None:
             raise InvalidSyntaxException("Wrong token in expression")
@@ -199,7 +202,7 @@ class Parser:
 
     def _statement(self) -> Type[AST]:
         """
-        statement: assignment_statement | RETURN exp_logical
+        statement: assignment_statement | RETURN exp_logical | conditional_statement
         """
         node = None
         if self._is_specific_token(Token.BUILTIN_WORD, Token.BUILTIN_WORDS["return"]):

@@ -1,26 +1,21 @@
-mov eax, 12
+mov eax, 10
+neg eax
 push eax
 mov eax, 5
 push eax
-pop eax
 pop ebx
-add eax, ebx
+pop eax
+sub eax, ebx
 push eax
-mov eax, 40
+mov eax, 7
 push eax
-mov eax, 5
+mov eax, 2
 push eax
 pop ebx
 pop eax
 cdq
 idiv ebx
 push eax
-mov eax, [ebp - 4]
-push eax
-mov eax, [ebp - 8]
-push eax
 pop eax
 pop ebx
-xor edx, edx
-cdq
-imul ebx
+add eax, ebx
