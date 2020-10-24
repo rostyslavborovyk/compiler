@@ -1,6 +1,7 @@
 from typing import List, Type
 
-from my_parser.AST import AST, StringAST, DecimalAST, BinOpAST, UnOpAST, AssignExpAST, StatementsListAST, IdAST
+from my_parser.AST import AST, StringAST, DecimalAST, BinOpAST, UnOpAST, AssignExpAST, StatementsListAST, IdAST, \
+    CondExpAST
 from exceptions.my_exceptions import InvalidSyntaxException, EOF
 from lexer.my_token import Token
 
@@ -74,9 +75,31 @@ class Parser:
             return False
 
     def _is_statement(self) -> bool:
-        if self._is_specific_token(Token.BUILTIN_WORD, Token.BUILTIN_WORDS["return"]) \
-                or self._is_specific_token(Token.ID):
+        if self._is_specific_token(Token.BUILTIN_WORD, Token.BUILTIN_WORDS["RETURN"]) \
+                or self._is_specific_token(Token.ID) \
+                or self._is_specific_token(Token.BUILTIN_WORD, Token.BUILTIN_WORDS["IF"]):
             return True
+        return False
+
+    def _end_of_block(self, nesting):
+        if self.current_token == EOF:
+            return True
+        pos = self.pos
+        token = self.tokens_list[pos]
+        # if token.tok_type != Token.SLASH_N:
+        #     return True
+
+        # pos += 1
+        # token = self.tokens_list[pos]
+        if token.tok_type == Token.SLASH_N:
+            pos += 1
+            token = self.tokens_list[pos]
+
+        for i in range(nesting):
+            if token.tok_type != Token.SLASH_T:
+                return True
+            pos += 1
+            token = self.tokens_list[pos]
         return False
 
     def _factor(self) -> Type[AST]:
@@ -208,14 +231,31 @@ class Parser:
 
         return AssignExpAST(var_id, exp)
 
-    def _statement(self) -> Type[AST]:
+    def _conditional_statement(self, nesting: int) -> Type[AST]:
+        self._check(Token.BUILTIN_WORD, Token.BUILTIN_WORDS["IF"])
+        cond_exp = self._exp_logical()
+        self._check(Token.COLON)
+        self._check(Token.SLASH_N)
+        node_if = self._statement_list(nesting + 1)
+        self._check_indent(nesting)
+        self._check(Token.BUILTIN_WORD, Token.BUILTIN_WORDS["ELSE"])
+        self._check(Token.COLON)
+        self._check(Token.SLASH_N)
+        node_else = self._statement_list(nesting + 1)
+
+        node = CondExpAST(cond_exp, node_if, node_else)
+        return node
+
+    def _statement(self, nesting: int) -> Type[AST]:
         """
         statement: assignment_statement | RETURN exp_logical | conditional_statement
         """
         node = None
-        if self._is_specific_token(Token.BUILTIN_WORD, Token.BUILTIN_WORDS["return"]):
-            self._check(Token.BUILTIN_WORD, Token.BUILTIN_WORDS["return"])
+        if self._is_specific_token(Token.BUILTIN_WORD, Token.BUILTIN_WORDS["RETURN"]):
+            self._check(Token.BUILTIN_WORD, Token.BUILTIN_WORDS["RETURN"])
             node = self._exp_logical()
+        elif self._is_specific_token(Token.BUILTIN_WORD, Token.BUILTIN_WORDS["IF"]):
+            node = self._conditional_statement(nesting)
         elif self._is_specific_token(Token.ID):  # todo set regexp to value to check var validity
             node = self._assignment_statement()
 
@@ -230,11 +270,16 @@ class Parser:
         """
 
         self._check_indent(nesting)
-        statements = [self._statement()]
+        statements = [self._statement(nesting)]
         if not self._checkEOF():
             while self._is_specific_token(Token.SLASH_T):
                 self._check(Token.SLASH_T)
             self._check(Token.SLASH_N)
+
+        # todo set here check end of block
+        if self._end_of_block(nesting):
+            node = StatementsListAST(statements)
+            return node
 
         while not self._checkEOF():
             # handle new line
@@ -249,7 +294,9 @@ class Parser:
             if self._checkEOF():
                 break
             if self._is_statement():
-                statements.append(self._statement())
+                statements.append(self._statement(nesting))
+                if self._end_of_block(nesting):
+                    break
 
         node = StatementsListAST(statements)
         return node
@@ -259,7 +306,7 @@ class Parser:
         main_func_expr: DEF WORD L_BRACKET R_BRACKET COLON SLASH_N statement_list
         """
         self._check_indent(nesting)
-        self._check(Token.BUILTIN_WORD, "def")
+        self._check(Token.BUILTIN_WORD, Token.BUILTIN_WORDS["DEF"])
         self._check(Token.ID)
         self._check(Token.L_BRACKET)
         self._check(Token.R_BRACKET)
@@ -277,8 +324,12 @@ class Parser:
         node = self._func_expr(nesting)
 
         # self._set_next_token()
-        if self.current_token != EOF:
-            raise InvalidSyntaxException("To much tokens for main function")
+        while self.current_token != EOF and self.current_token.tok_type == Token.SLASH_N:
+            while self.current_token != EOF and self.current_token.tok_type == Token.SLASH_T:
+                self._check(Token.SLASH_T)
+            self._check(Token.SLASH_N)
+        # if self.current_token != EOF:
+        #     raise InvalidSyntaxException("To much tokens for main function")
 
         return node
 

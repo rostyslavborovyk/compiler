@@ -14,8 +14,10 @@ class Token:
     STRING = "STRING"  # char sequence in ""
 
     BUILTIN_WORDS = {
-        "def": "def",
-        "return": "return",
+        "DEF": "def",
+        "RETURN": "return",
+        "IF": "if",
+        "ELSE": "else",
     }
 
     OPERATIONS = {

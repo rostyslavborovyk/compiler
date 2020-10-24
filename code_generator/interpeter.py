@@ -1,4 +1,4 @@
-from my_parser.AST import NumAST, StringAST, BinOpAST, UnOpAST, AST, StatementsListAST, AssignExpAST, IdAST
+from my_parser.AST import NumAST, StringAST, BinOpAST, UnOpAST, AST, StatementsListAST, AssignExpAST, IdAST, CondExpAST
 from typing import Union, Type, Dict
 
 from code_generator.code_generator import CodeGenerator
@@ -55,6 +55,13 @@ class Interpreter:
             raise NoSuchVariableException(f"No such variable {node.var_id}")
 
         self.code_generator.add(f"mov eax, [ebp - {-var_offset}]")
+
+    def _visit_CondExpAST(self, node: CondExpAST) -> None:
+        self.code_generator.if_statement(
+            lambda: self._visit(node.cond),
+            lambda: self._visit(node.node_if),
+            lambda: self._visit(node.node_else),
+        )
 
     def _visit_BinOpAST(self, node: BinOpAST) -> None:
         if node.op.value == Token.OPERATIONS["DIV"]:

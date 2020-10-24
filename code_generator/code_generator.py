@@ -14,6 +14,21 @@ class CodeGenerator:
         self.label_unique_id += 1
         return self.label_unique_id
 
+    def if_statement(self, cond: Callable[[], None], if_exp: Callable[[], None], else_exp: Callable[[], None]):
+        unique_id = self._get_unique_id()
+
+        l1 = f"_else_{unique_id}"
+        l2 = f"_post_cond_{unique_id}"
+
+        cond()
+        self.add("cmp eax, 0")
+        self.add(f"je {l1}")
+        if_exp()
+        self.add(f"jmp {l2}")
+        self.add(f"{l1}:")
+        else_exp()
+        self.add(f"{l2}:")
+
     def div_op(self, left: Callable[[], None], right: Callable[[], None]) -> None:
         left()
         self.add(f"push eax")

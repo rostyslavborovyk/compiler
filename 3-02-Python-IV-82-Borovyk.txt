@@ -1,4 +1,7 @@
 def main():
-    a = -4
-    b = 2
-    return a / b
+    b = 0
+    if 1 or 0:
+        b = 10
+    else:
+        b = 6
+    return b

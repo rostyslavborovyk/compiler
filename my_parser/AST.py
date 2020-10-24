@@ -41,6 +41,22 @@ class AssignExpAST(AST):
         return f"AssignExpAST(var_id={self.var_id}, exp={self.exp})"
 
 
+class CondExpAST(AST):
+    def __init__(self, cond, node_if, node_else):
+        self.cond = cond
+        self.node_if = node_if
+        self.node_else = node_else
+
+    def prettyAST(self, depth=0):
+        indent = "\t" * depth
+        res = f"CondExpAST(\n" \
+              f"\t{indent}cond={self.cond.prettyAST(depth+1)}" \
+              f"\t{indent}node_if={self.node_if.prettyAST(depth + 1)}" \
+              f"\t{indent}node_else={self.node_else.prettyAST(depth + 1)}" \
+              f"{indent})\n"
+        return res
+
+
 class IdAST(AST):
     def __init__(self, var_id: str):
         self.var_id = var_id
