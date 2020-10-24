@@ -95,8 +95,8 @@ class Parser:
             node = self._exp_logical()
             self._check(Token.R_BRACKET)
 
-        if token.tok_type == Token.MINUS:
-            self._check(Token.MINUS)
+        if token.tok_type == Token.OPERATION and token.value == Token.OPERATIONS["MINUS"]:
+            self._check(Token.OPERATION, Token.OPERATIONS["MINUS"])
             node = UnOpAST(token, self._factor())
 
         elif token.tok_type == Token.NUMBER_DECIMAL:  # todo maybe handle binary num too
@@ -127,11 +127,14 @@ class Parser:
 
         node = self._factor()
         token = self.current_token
-        while self.current_token != EOF and self.current_token.tok_type in (Token.DIV, Token.MUL):
-            if token.tok_type == Token.DIV:
-                self._check(Token.DIV)
-            elif token.tok_type == Token.MUL:
-                self._check(Token.MUL)
+        while self.current_token != EOF \
+                and self.current_token.tok_type == Token.OPERATION \
+                and self.current_token.value in (
+                Token.OPERATIONS["DIV"], Token.OPERATIONS["MUL"]):
+            if token.value == Token.OPERATIONS["DIV"]:
+                self._check(Token.OPERATION, Token.OPERATIONS["DIV"])
+            elif token.value == Token.OPERATIONS["MUL"]:
+                self._check(Token.OPERATION, Token.OPERATIONS["MUL"])
             node = BinOpAST(node, token, self._factor())
             token = self.current_token
 
@@ -152,11 +155,14 @@ class Parser:
 
         node = self._term()
         token = self.current_token
-        while self.current_token != EOF and self.current_token.tok_type in (Token.MINUS, Token.PLUS):
-            if token.tok_type == Token.MINUS:
-                self._check(Token.MINUS)
-            elif token.tok_type == Token.PLUS:
-                self._check(Token.PLUS)
+        while self.current_token != EOF \
+                and self.current_token.tok_type == Token.OPERATION \
+                and self.current_token.value in (
+                Token.OPERATIONS["MINUS"], Token.OPERATIONS["PLUS"]):
+            if token.value == Token.OPERATIONS["MINUS"]:
+                self._check(Token.OPERATION, Token.OPERATIONS["MINUS"])
+            elif token.value == Token.OPERATIONS["PLUS"]:
+                self._check(Token.OPERATION, Token.OPERATIONS["PLUS"])
             node = BinOpAST(node, token, self._term())
             token = self.current_token
 
@@ -177,9 +183,11 @@ class Parser:
 
         node = self._expression()
         token = self.current_token
-        while self.current_token != EOF and self.current_token.value in (Token.BUILTIN_WORDS["or"],):
-            if token.tok_type == Token.BUILTIN_WORD and token.value == Token.BUILTIN_WORDS["or"]:
-                self._check(Token.BUILTIN_WORD, Token.BUILTIN_WORDS["or"])
+        while self.current_token != EOF \
+                and self.current_token.tok_type == Token.OPERATION \
+                and self.current_token.value in (Token.OPERATIONS["OR"],):
+            if token.value == Token.OPERATIONS["OR"]:
+                self._check(Token.OPERATION, Token.OPERATIONS["OR"])
 
             node = BinOpAST(node, token, self._expression())
             token = self.current_token

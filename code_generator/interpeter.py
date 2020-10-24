@@ -57,38 +57,38 @@ class Interpreter:
         self.code_generator.add(f"mov eax, [ebp - {-var_offset}]")
 
     def _visit_BinOpAST(self, node: BinOpAST) -> None:
-        if node.op.tok_type == Token.DIV:
+        if node.op.value == Token.OPERATIONS["DIV"]:
             self.code_generator.div_op(
                 lambda: self._visit(node.left),
                 lambda: self._visit(node.right)
             )
 
-        elif node.op.tok_type == Token.MUL:
+        elif node.op.value == Token.OPERATIONS["MUL"]:
             self.code_generator.mul_op(
                 lambda: self._visit(node.left),
                 lambda: self._visit(node.right)
             )
 
-        elif node.op.tok_type == Token.PLUS:
+        elif node.op.value == Token.OPERATIONS["PLUS"]:
             self.code_generator.plus_op(
                 lambda: self._visit(node.left),
                 lambda: self._visit(node.right)
             )
 
-        elif node.op.tok_type == Token.MINUS:
+        elif node.op.value == Token.OPERATIONS["MINUS"]:
             self.code_generator.sub_op(
                 lambda: self._visit(node.left),
                 lambda: self._visit(node.right)
             )
 
-        elif node.op.tok_type == Token.BUILTIN_WORD and node.op.value == Token.BUILTIN_WORDS["or"]:
+        elif node.op.value == Token.OPERATIONS["OR"]:
             self.code_generator.logical_or_op(
                 lambda: self._visit(node.left),
                 lambda: self._visit(node.right)
             )
 
     def _visit_UnOpAST(self, node: UnOpAST) -> None:
-        if node.op.tok_type == Token.MINUS:
+        if node.op.value == Token.OPERATIONS["MINUS"]:
             self._visit(node.right)
 
             self.code_generator.add("neg eax")

@@ -118,14 +118,17 @@ class Lexer:
             tok_type = Token.SLASH_N
         elif lexeme[0] == "\"" and lexeme[-1]:  # todo (maybe) handle length
             tok_type = Token.STRING
-        elif lexeme == "/":
-            tok_type = Token.DIV
-        elif lexeme == "*":
-            tok_type = Token.MUL
-        elif lexeme == "-":
-            tok_type = Token.MINUS
-        elif lexeme == "+":
-            tok_type = Token.PLUS
+        # elif lexeme == "/":
+        #     tok_type = Token.OPERATIONS["DIV"]
+        # elif lexeme == "*":
+        #     tok_type = Token.OPERATIONS["MUL"]
+        # elif lexeme == "-":
+        #     tok_type = Token.OPERATIONS["MINUS"]
+        # elif lexeme == "+":
+        #     tok_type = Token.OPERATIONS["PLUS"]
+
+        elif lexeme in Token.OPERATIONS.values():
+            tok_type = Token.OPERATION
 
         # decimal number
         elif lexeme.isdigit():
@@ -136,7 +139,7 @@ class Lexer:
             tok_type = Token.NUMBER_BINARY
 
         # token for builtin names
-        elif lexeme.isalpha() and lexeme in Token.BUILTIN_WORDS:
+        elif lexeme.isalpha() and lexeme in Token.BUILTIN_WORDS.values():
             tok_type = Token.BUILTIN_WORD
 
         # should be last
