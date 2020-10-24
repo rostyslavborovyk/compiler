@@ -7,7 +7,7 @@ from lexer.my_token import Token
 
 class Parser:
     """
-    main_func_expr: DEF WORD L_BRACKET R_BRACKET COLON SLASH_N SLASH_T statement_list
+    main_func_expr: DEF WORD L_BRACKET R_BRACKET COLON SLASH_N statement_list
     statement_list: statement | statement SLASH_N SLASH_T* statement_list
     statement: assignment_statement | RETURN exp_logical
     assignment_statement: ID "=" exp_logical
@@ -42,7 +42,7 @@ class Parser:
         Checks if cur_token of corresponding type, if so checks if value corresponds and sets the next token
         """
         # print(f"Checking token {tok_type} {f'with value {value}' if value else ''}")
-        if self.current_token == EOF:
+        if self._checkEOF():
             raise InvalidSyntaxException("End of file")
         if self.current_token.tok_type == tok_type:
             if value is not None and self.current_token.value == value:
@@ -57,9 +57,13 @@ class Parser:
         else:
             raise InvalidSyntaxException(f"Token {self.current_token} should not be here")
 
+    def _check_indent(self, nesting: int):
+        for i in range(nesting):
+            self._check(Token.SLASH_T)
+
     def _is_specific_token(self, tok_type, value=None) -> bool:
         if self.current_token == EOF:
-            raise InvalidSyntaxException("End of file")
+            return False
         if self.current_token.tok_type == tok_type:
             if value is not None and self.current_token.value == value:
                 return True
@@ -68,6 +72,12 @@ class Parser:
             return True
         else:
             return False
+
+    def _is_statement(self) -> bool:
+        if self._is_specific_token(Token.BUILTIN_WORD, Token.BUILTIN_WORDS["return"]) \
+                or self._is_specific_token(Token.ID):
+            return True
+        return False
 
     def _factor(self) -> Type[AST]:
         """
@@ -168,7 +178,6 @@ class Parser:
         while self.current_token != EOF and self.current_token.value in (Token.BUILTIN_WORDS["or"],):
             if token.tok_type == Token.BUILTIN_WORD and token.value == Token.BUILTIN_WORDS["or"]:
                 self._check(Token.BUILTIN_WORD, Token.BUILTIN_WORDS["or"])
-            # some more operations ...
 
             node = BinOpAST(node, token, self._expression())
 
@@ -204,46 +213,63 @@ class Parser:
 
         return node
 
-    def _statement_list(self) -> Type[AST]:
+    def _statement_list(self, nesting: int) -> Type[AST]:
         """
         statement_list: statement | statement SLASH_N SLASH_T* statement_list
         """
+
+        self._check_indent(nesting)
         statements = [self._statement()]
+        if not self._checkEOF():
+            while self._is_specific_token(Token.SLASH_T):
+                self._check(Token.SLASH_T)
+            self._check(Token.SLASH_N)
 
         while not self._checkEOF():
             # handle new line
-            if self.current_token.tok_type == Token.SLASH_N:
+            # if self.current_token.tok_type == Token.SLASH_N:
+            while self._is_specific_token(Token.SLASH_N):
+                while self._is_specific_token(Token.SLASH_T):
+                    self._check(Token.SLASH_T)
                 self._check(Token.SLASH_N)
-
             if self._checkEOF():
                 break
+            self._check_indent(nesting)
+            if self._checkEOF():
+                break
+            if self._is_statement():
+                statements.append(self._statement())
 
-            # handle indent
-            if self.current_token.tok_type == Token.SLASH_T:
-                self._check(Token.SLASH_T)
-            statements.append(self._statement())
         node = StatementsListAST(statements)
         return node
 
-    def _main_func_expr(self) -> Type[AST]:
+    def _func_expr(self, nesting: int) -> Type[AST]:
         """
-        main_func_expr: DEF WORD L_BRACKET R_BRACKET COLON SLASH_N SLASH_T statement_list
+        main_func_expr: DEF WORD L_BRACKET R_BRACKET COLON SLASH_N statement_list
         """
+        self._check_indent(nesting)
         self._check(Token.BUILTIN_WORD, "def")
         self._check(Token.ID)
         self._check(Token.L_BRACKET)
         self._check(Token.R_BRACKET)
         self._check(Token.COLON)
         self._check(Token.SLASH_N)
-        self._check(Token.SLASH_T)
+        # self._check(Token.SLASH_T)
 
-        node = self._statement_list()
+        node = self._statement_list(nesting + 1)
 
-        self._set_next_token()
+        return node
+
+    def _program(self) -> Type[AST]:
+        nesting = 0
+
+        node = self._func_expr(nesting)
+
+        # self._set_next_token()
         if self.current_token != EOF:
             raise InvalidSyntaxException("To much tokens for main function")
 
         return node
 
     def parse(self) -> Type[AST]:
-        return self._main_func_expr()
+        return self._program()
