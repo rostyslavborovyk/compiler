@@ -15,12 +15,16 @@ class Lexer:
         self.pos = 0
         self.cur_char: str = text[self.pos]
 
+        self.row = 1  # row in which token is located
+        self.row_pos = 0  # position in row
+
     def _set_next_char(self):
         self.pos += 1
         if self.pos < len(self.text):
             self.cur_char = self.text[self.pos]
         else:
             self.cur_char = EOF
+        self.row_pos += 1
 
     def _is_next_char(self, char):
         if self.pos + 1 == len(self.text):
@@ -96,7 +100,7 @@ class Lexer:
         indent = " " * tab_size
         indents_ls = []
         while self.text[self.pos: self.pos + tab_size] == indent:
-            indents_ls.append(Token(self.text[self.pos: self.pos + tab_size], Token.SLASH_T))
+            indents_ls.append(Token(self.text[self.pos: self.pos + tab_size], Token.SLASH_T, (self.row, self.row_pos)))
             self.pos += tab_size
             self.cur_char = self.text[self.pos]
         return indents_ls
@@ -116,16 +120,10 @@ class Lexer:
             tok_type = Token.ASSIGN
         elif lexeme == "\\n":
             tok_type = Token.SLASH_N
+            self.row_pos = 0
+            self.row += 1
         elif lexeme[0] == "\"" and lexeme[-1]:  # todo (maybe) handle length
             tok_type = Token.STRING
-        # elif lexeme == "/":
-        #     tok_type = Token.OPERATIONS["DIV"]
-        # elif lexeme == "*":
-        #     tok_type = Token.OPERATIONS["MUL"]
-        # elif lexeme == "-":
-        #     tok_type = Token.OPERATIONS["MINUS"]
-        # elif lexeme == "+":
-        #     tok_type = Token.OPERATIONS["PLUS"]
 
         elif lexeme in Token.OPERATIONS.values():
             tok_type = Token.OPERATION
@@ -150,7 +148,7 @@ class Lexer:
         if not tok_type:
             raise UnrecognizedTokenException(f"Unrecognized token: {lexeme}")
 
-        return Token(lexeme, tok_type)
+        return Token(lexeme, tok_type, (self.row, self.row_pos))
 
     def get_tokens(self):
         tokens_list: List[Token] = []

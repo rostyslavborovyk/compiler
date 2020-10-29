@@ -51,12 +51,17 @@ class Parser:
                 return None
             elif value is not None and self.current_token.value != value:
                 raise InvalidSyntaxException(
-                    f"Token value {self.current_token.value} is wrong "
-                    f"should be {value}"
+                    f"Token value {self.current_token.value} "
+                    f"in row={self.current_token.pos[0]}, pos={self.current_token.pos[1]} "
+                    f"is wrong, should be {value}"
                 )
             self._set_next_token()
         else:
-            raise InvalidSyntaxException(f"Token {self.current_token} should not be here")
+            raise InvalidSyntaxException(
+                f"Token {self.current_token.value} "
+                f"in row={self.current_token.pos[0]}, pos={self.current_token.pos[1]} "
+                f"should not be here"
+            )
 
     def _check_indent(self, nesting: int):
         for i in range(nesting):
@@ -162,7 +167,11 @@ class Parser:
             token = self.current_token
 
         if node is None:
-            raise InvalidSyntaxException("Wrong token in term expression")
+            raise InvalidSyntaxException(
+                f"Wrong token {self.current_token.value} "
+                f"in row={self.current_token.pos[0]}, pos={self.current_token.pos[1]} "
+                "in term expression"
+            )
 
         return node
 
@@ -190,7 +199,11 @@ class Parser:
             token = self.current_token
 
         if node is None:
-            raise InvalidSyntaxException("Wrong token in expression")
+            raise InvalidSyntaxException(
+                f"Wrong token {self.current_token.value} "
+                f"in row={self.current_token.pos[0]}, pos={self.current_token.pos[1]} "
+                f"in expression"
+            )
 
         return node
 
@@ -216,7 +229,11 @@ class Parser:
             token = self.current_token
 
         if node is None:
-            raise InvalidSyntaxException("Wrong token in expression")
+            raise InvalidSyntaxException(
+                f"Wrong token {self.current_token.value} "
+                f"in row={self.current_token.pos[0]}, pos={self.current_token.pos[1]} "
+                f"in or_expression"
+            )
 
         return node
 
