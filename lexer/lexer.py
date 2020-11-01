@@ -105,6 +105,13 @@ class Lexer:
             self.cur_char = self.text[self.pos]
         return indents_ls
 
+    def _process_operations(self):
+        lexeme_with_next_char = self.cur_char + self.text[self.pos+1]
+        if lexeme_with_next_char in Token.ASSIGNS.values():
+            self._set_next_char()
+            return Token(lexeme_with_next_char, Token.ASSIGN, (self.row, self.row_pos))
+        return Token(self.cur_char, Token.OPERATION, (self.row, self.row_pos))
+
     def _get_token(self, lexeme) -> Token:
         """
         Returns token from given lexeme
@@ -116,7 +123,7 @@ class Lexer:
             tok_type = Token.R_BRACKET
         elif lexeme == ":":
             tok_type = Token.COLON
-        elif lexeme == "=":
+        elif lexeme in Token.ASSIGNS.values():
             tok_type = Token.ASSIGN
         elif lexeme == "\\n":
             tok_type = Token.SLASH_N
@@ -187,20 +194,24 @@ class Lexer:
                 token = self._get_token("=")
                 tokens_list.append(token)
                 self._set_next_char()
-            elif self.cur_char == "-":
-                token = self._get_token("-")
-                tokens_list.append(token)
-                self._set_next_char()
-            elif self.cur_char == "+":
-                token = self._get_token("+")
-                tokens_list.append(token)
-                self._set_next_char()
-            elif self.cur_char == "*":
-                token = self._get_token("*")
-                tokens_list.append(token)
-                self._set_next_char()
-            elif self.cur_char == "/":
-                token = self._get_token("/")
+            # elif self.cur_char == "-":
+            #     token = self._get_token("-")
+            #     tokens_list.append(token)
+            #     self._set_next_char()
+            # elif self.cur_char == "+":
+            #     token = self._get_token("+")
+            #     tokens_list.append(token)
+            #     self._set_next_char()
+            # elif self.cur_char == "*":
+            #     token = self._get_token("*")
+            #     tokens_list.append(token)
+            #     self._set_next_char()
+            # elif self.cur_char == "/":
+            #     token = self._get_token("/")
+            #     tokens_list.append(token)
+            #     self._set_next_char()
+            elif self.cur_char in Token.OPERATIONS.values():
+                token = self._process_operations()
                 tokens_list.append(token)
                 self._set_next_char()
             elif self.cur_char == " ":

@@ -31,6 +31,11 @@ class Token:
         "OR": "or",
     }
 
+    ASSIGNS = {
+        "ASSIGN": "=",
+        "ASSIGN_MUL": "*=",
+    }
+
     def __init__(self, value, tok_type, pos: Tuple[int, int] = None):
         self.value = value
         self.tok_type = tok_type
