@@ -91,6 +91,13 @@ class Parser:
         elif self._is_specific_token(Token.ID):
             func_args.append(self.current_token)
             self._check(Token.ID)
+            while self._is_specific_token(Token.COMMA):
+                self._check(Token.COMMA)
+                if self._is_specific_token(Token.ID):
+                    func_args.append(self.current_token)
+                    self._check(Token.ID)
+                else:
+                    raise InvalidSyntaxException(f"Here should be variable, not {self.current_token}")
             self._check(Token.R_BRACKET)
         # todo add processing of other args
 
@@ -119,6 +126,13 @@ class Parser:
         elif self._is_specific_token(Token.ID) or self._is_specific_token(Token.NUMBER_DECIMAL):
             arg_list = [self.current_token]
             self._check(self.current_token.tok_type)
+            while self._is_specific_token(Token.COMMA):
+                self._check(Token.COMMA)
+                if self._is_specific_token(Token.ID) or self._is_specific_token(Token.NUMBER_DECIMAL):
+                    arg_list.append(self.current_token)
+                    self._check(self.current_token.tok_type)
+                else:
+                    raise InvalidSyntaxException(f"Here should be variable or number, not {self.current_token}")
 
             self._check(Token.R_BRACKET)
             node = FunctionCallAST(func_id, arg_list)

@@ -1,13 +1,15 @@
 def baz(c):
-    b = (c + 5) * 2
+    b = c + 2
     return b
 
-def foo(a):
-    return a * 10
+def foo(a, d):
+    n = d + a
+    a = 10000
+    return n
 
 def main():
     a = baz(12)
-    b = foo(a)
-    return b - a
+    b = foo(a, 3)
+    return b + a
 
 main()
