@@ -48,22 +48,24 @@ class Parser:
         while self._is_specific_token(Token.SLASH_N) or self._is_specific_token(Token.SLASH_T):
             self._check(self.current_token.tok_type)
 
-        if self._is_specific_token(Token.BUILTIN_WORD, Token.BUILTIN_WORDS["DEF"]):
-            hl_statements.append(self._func_expr(nesting))
+        # if self._is_specific_token(Token.BUILTIN_WORD, Token.BUILTIN_WORDS["DEF"]):
+        #     hl_statements.append(self._func_expr(nesting))
+        #
+        # while self._is_specific_token(Token.SLASH_N) or self._is_specific_token(Token.SLASH_T):
+        #     self._check(self.current_token.tok_type)
+        #
+        # if self._is_specific_token(Token.ID):
+        #     hl_statements.append(self._func_call())
+        while self.current_token != EOF:
+            if self._is_specific_token(Token.BUILTIN_WORD, Token.BUILTIN_WORDS["DEF"]):
+                hl_statements.append(self._func_expr(nesting))
 
-        while self._is_specific_token(Token.SLASH_N) or self._is_specific_token(Token.SLASH_T):
-            self._check(self.current_token.tok_type)
+            if self._is_specific_token(Token.ID):
+                hl_statements.append(self._func_call())
 
-        if self._is_specific_token(Token.ID):
-            hl_statements.append(self._func_call())
+            while self._is_specific_token(Token.SLASH_N) or self._is_specific_token(Token.SLASH_T):
+                self._check(self.current_token.tok_type)
 
-        # self._set_next_token()
-        # while self.current_token != EOF and self.current_token.tok_type == Token.SLASH_N:
-        #     while self.current_token != EOF and self.current_token.tok_type == Token.SLASH_T:
-        #         self._check(Token.SLASH_T)
-        #     self._check(Token.SLASH_N)
-        # if self.current_token != EOF:
-        #     raise InvalidSyntaxException("To much tokens for main function")
         node = ProgramAST(hl_statements)
 
         return node
@@ -117,6 +119,8 @@ class Parser:
         elif self._is_specific_token(Token.ID) or self._is_specific_token(Token.NUMBER_DECIMAL):
             arg_list = [self.current_token]
             self._check(self.current_token.tok_type)
+
+            self._check(Token.R_BRACKET)
             node = FunctionCallAST(func_id, arg_list)
 
         if node is None:

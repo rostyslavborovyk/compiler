@@ -31,12 +31,12 @@ class Interpreter:
         visitor(node)
 
     def _visit_ProgramAST(self, node: ProgramAST):
-        print("visited ProgramAst")
+        # print("visited ProgramAst")
         for node in node.hl_statements:
             self._visit(node)
 
     def _visit_FunctionAST(self, node: FunctionAST):
-        print("visited function definition")
+        # print("visited function definition")
         # saving var map state and offset
         saved_var_map = deepcopy(self.var_map)
         saved_offset = self.var_offset
@@ -72,6 +72,10 @@ class Interpreter:
             for arg in node.args[::-1]:
                 if arg.tok_type == Token.NUMBER_DECIMAL:
                     self.code_generator.add(f"push {arg.value}")
+                elif arg.tok_type == Token.ID:
+                    self._visit(IdAST(arg.value))
+                    self.code_generator.add(f"push eax")
+
         self.code_generator.add(f"call {self.code_generator.func_label_wrapper(node.func_id.value)}")
 
     def _visit_StatementsListAST(self, node: StatementsListAST) -> None:

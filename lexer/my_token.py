@@ -6,6 +6,7 @@ class Token:
     L_BRACKET = "L_BRACKET"
     R_BRACKET = "R_BRACKET"
     COLON = "COLON"
+    COMMA = "COMMA"
     BUILTIN_WORD = "BUILTIN_WORD"  # char sequence which corresponds to any BUILTIN_WORD
     OPERATION = "OPERATION"  # char sequence which corresponds to any OPERATION
     ID = "ID"  # char sequence which not corresponds to any BUILTIN_WORD or OPERATION
