@@ -1,6 +1,8 @@
 from typing import Callable
 import re
 
+from my_parser.AST import FunctionAST
+
 
 class CodeGenerator:
     def __init__(self):
@@ -13,6 +15,9 @@ class CodeGenerator:
     def _get_unique_id(self):
         self.label_unique_id += 1
         return self.label_unique_id
+
+    def func_label_wrapper(self, func_id: str) -> str:
+        return f"_func_{func_id}"
 
     def if_statement(self, cond: Callable[[], None], if_exp: Callable[[], None], else_exp: Callable[[], None]):
         unique_id = self._get_unique_id()
@@ -99,7 +104,7 @@ class CodeGenerator:
 
     def write_to_file(self):
         generated_string = "\n".join(self.generated_code)
-        with open("3-02-Python-IV-82-Borovyk.asm", "w") as f:
+        with open("5-02-Python-IV-82-Borovyk.asm", "w") as f:
             f.write(generated_string)
 
     def _double_offset(self, string: str) -> str:

@@ -1,3 +1,5 @@
+from typing import List, Optional
+
 from lexer.my_token import Token
 
 
@@ -13,6 +15,24 @@ class NumAST(AST):
 
     def __repr__(self):
         return f"NumASTNode({self.token}, {self.value})"
+
+
+class ProgramAST(AST):
+    def __init__(self, hl_statements):  # high level statements
+        self.hl_statements = hl_statements
+
+
+class FunctionAST(AST):
+    def __init__(self, func_id, statement_list, func_args: List[Token]):
+        self.func_id = func_id
+        self.statement_list = statement_list
+        self.func_args = func_args
+
+
+class FunctionCallAST(AST):
+    def __init__(self, func_id, args: Optional[List[Token]] = None):
+        self.func_id = func_id
+        self.args = args
 
 
 class StatementsListAST(AST):
@@ -50,7 +70,7 @@ class CondExpAST(AST):
     def prettyAST(self, depth=0):
         indent = "\t" * depth
         res = f"CondExpAST(\n" \
-              f"\t{indent}cond={self.cond.prettyAST(depth+1)}" \
+              f"\t{indent}cond={self.cond.prettyAST(depth + 1)}" \
               f"\t{indent}node_if={self.node_if.prettyAST(depth + 1)}" \
               f"\t{indent}node_else={self.node_else.prettyAST(depth + 1)}" \
               f"{indent})\n"

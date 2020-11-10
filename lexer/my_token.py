@@ -16,6 +16,7 @@ class Token:
     NUMBER_BINARY = "NUMBER_BINARY"
     STRING = "STRING"  # char sequence in ""
 
+    # token values
     BUILTIN_WORDS = {
         "DEF": "def",
         "RETURN": "return",

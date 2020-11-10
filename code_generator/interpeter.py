@@ -1,18 +1,22 @@
-from my_parser.AST import NumAST, StringAST, BinOpAST, UnOpAST, AST, StatementsListAST, AssignExpAST, IdAST, CondExpAST
+from my_parser.AST import NumAST, StringAST, BinOpAST, UnOpAST, AST, StatementsListAST, AssignExpAST, IdAST, CondExpAST, \
+    FunctionAST, FunctionCallAST, ProgramAST
 from typing import Union, Type, Dict
 
 from code_generator.code_generator import CodeGenerator
 from exceptions.my_exceptions import NoVisitMethodException, NoSuchVariableException
 from lexer.my_token import Token
+from copy import deepcopy
 
 
 class Interpreter:
-    def __init__(self, ast: Type[AST]):
+    def __init__(self, ast: ProgramAST):
         self.code_generator = CodeGenerator()
         self.ast = ast
 
         # var_id: offset
         self.var_map: Dict[str, int] = dict()
+        self.func_args_var_map: Dict[str, int] = dict()
+        self.func_map = set()
         self.var_offset = 0
 
     def _decrement_offset(self) -> None:
@@ -25,6 +29,50 @@ class Interpreter:
         method_name = "_visit_" + type(node).__name__
         visitor = getattr(self, method_name, self._visit_exception)
         visitor(node)
+
+    def _visit_ProgramAST(self, node: ProgramAST):
+        print("visited ProgramAst")
+        for node in node.hl_statements:
+            self._visit(node)
+
+    def _visit_FunctionAST(self, node: FunctionAST):
+        print("visited function definition")
+        # saving var map state and offset
+        saved_var_map = deepcopy(self.var_map)
+        saved_offset = self.var_offset
+        # adding local vars to local var map
+        for i in range(len(node.func_args)):
+            var_id = node.func_args[i].value
+            var_offset = 4 + (i + 1) * 4
+            self.func_args_var_map.update({var_id: var_offset})
+
+        func_label = f"{self.code_generator.func_label_wrapper(node.func_id.value)}"
+        # adding labels to omit function
+        self.code_generator.add(f"jmp {func_label}_end")
+        self.code_generator.add(f"{func_label}:")
+        self.code_generator.add("push ebp")
+        self.code_generator.add("mov ebp, esp")
+
+        for statement in node.statement_list.children:
+            self._visit(statement)
+
+        self.code_generator.add("mov esp, ebp")
+        self.code_generator.add("pop ebp")
+        self.code_generator.add(f"ret {len(node.func_args) * 4 if len(node.func_args) else ''}")
+        self.code_generator.add(f"{func_label}_end:")
+        # removing local vars from local var map
+        self.func_args_var_map = dict()
+        # restoring var map state and offset
+        self.var_map = saved_var_map
+        self.var_offset = saved_offset
+
+    def _visit_FunctionCallAST(self, node: FunctionCallAST):
+        print("visited function call")
+        if node.args:
+            for arg in node.args[::-1]:
+                if arg.tok_type == Token.NUMBER_DECIMAL:
+                    self.code_generator.add(f"push {arg.value}")
+        self.code_generator.add(f"call {self.code_generator.func_label_wrapper(node.func_id.value)}")
 
     def _visit_StatementsListAST(self, node: StatementsListAST) -> None:
         for child in node.children:
@@ -51,10 +99,14 @@ class Interpreter:
 
     def _visit_IdAST(self, node: IdAST) -> None:
         var_offset = self.var_map.get(node.var_id)
+        if var_offset is not None:
+            self.code_generator.add(f"mov eax, [ebp - {-var_offset}]")
+        else:
+            var_offset = self.func_args_var_map.get(node.var_id)
+            if var_offset is not None:
+                self.code_generator.add(f"mov eax, [ebp + {var_offset}]")
         if var_offset is None:
             raise NoSuchVariableException(f"No such variable {node.var_id}")
-
-        self.code_generator.add(f"mov eax, [ebp - {-var_offset}]")
 
     def _visit_CondExpAST(self, node: CondExpAST) -> None:
         self.code_generator.if_statement(

@@ -1,0 +1,9 @@
+def foo(c):
+    b = c + 5
+    return b
+
+def main():
+    a = foo(3)
+    return a
+
+main()
