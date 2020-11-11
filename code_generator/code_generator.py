@@ -117,14 +117,32 @@ class CodeGenerator:
             res = re.sub(re.compile(r"\d+"), d, res)
         return res if res else string
 
+    def _double_outer_scope_offset(self, string: str) -> str:
+        res = re.search(re.compile(r".*\[rbp \+ \d+].*"), string)
+        if res:
+            res = res.group(0)
+            d = re.search(re.compile(r"\d+"), res).group(0)
+            d = str(2 * int(d))
+            res = re.sub(re.compile(r"\d+"), d, res)
+        return res if res else string
+
+    def _double_ret(self, string: str) -> str:
+        res = re.search(re.compile(r"ret \d+"), string)
+        if res:
+            res = res.group(0)
+            d = re.search(re.compile(r"\d+"), res).group(0)
+            d = str(2 * int(d))
+            res = re.sub(re.compile(r"\d+"), d, res)
+        return res if res else string
+
     def write_to_test_file(self, output_path):
         # adding prolog
-        gc = [
-            "push rbp",
-            "mov rbp, rsp",
-        ]
-        gc.extend(self.generated_code)
-        self.generated_code = gc
+        # gc = [
+        #     "push rbp",
+        #     "mov rbp, rsp",
+        # ]
+        # gc.extend(self.generated_code)
+        # self.generated_code = gc
 
         # replacing 32 bit registers with 64 bit (for 64 bit systems)
         self.generated_code = map(lambda x: x.replace("eax", "rax"), self.generated_code)
@@ -135,14 +153,16 @@ class CodeGenerator:
 
         # doubling the offset from 4 bytes per var to 8 bytes (for 64 bit systems)
         self.generated_code = map(lambda x: self._double_offset(x), self.generated_code)
+        self.generated_code = map(lambda x: self._double_outer_scope_offset(x), self.generated_code)
+        self.generated_code = map(lambda x: self._double_ret(x), self.generated_code)
 
-        # adding epilog
         self.generated_code = list(self.generated_code)
-        self.generated_code.extend([
-            "mov rsp, rbp",
-            "pop rbp"
-        ])
-
+        # adding epilog
+        # self.generated_code.extend([
+        #     "mov rsp, rbp",
+        #     "pop rbp"
+        # ])
+        self.generated_code.append("mov b, eax")
         generated_string = "\n\t".join(map(lambda x: f"\"{x};\"", self.generated_code))
 
         with open("build/build_template.cpp", "r") as f:

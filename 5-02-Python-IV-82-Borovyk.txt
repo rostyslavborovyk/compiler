@@ -1,8 +1,8 @@
+def foo(a):
+    return 2 * a + 1
+
 def main():
-    if 0 or 0:
-        b = 10
-    else:
-        b = 6
-    return b
+    a = foo(2)
+    return a
 
 main()
