@@ -149,7 +149,7 @@ class Parser:
         self._check_indent(nesting)
         statements = [self._statement(nesting)]
         if not self._checkEOF():
-            while self._is_specific_token(Token.SLASH_T):
+            while self._is_specific_token(Token.SLASH_T) and self._is_in_previous_row():
                 self._check(Token.SLASH_T)
             if self._is_specific_token(Token.SLASH_N):
                 self._check(Token.SLASH_N)
@@ -427,6 +427,18 @@ class Parser:
                 or self._is_specific_token(Token.BUILTIN_WORD, Token.BUILTIN_WORDS["IF"]):
             return True
         return False
+
+    def _is_in_previous_row(self):
+        token = self.current_token
+        pos_offset = 0
+        while True:
+            while token.tok_type == Token.SLASH_T:
+                pos_offset += 1
+                token = self.tokens_list[self.pos + pos_offset]
+            if token.tok_type == Token.SLASH_N:
+                return True
+            else:
+                return False
 
     def _end_of_block(self, nesting):
         if self.current_token == EOF:

@@ -1,15 +1,8 @@
-def baz(c):
-    b = c + 2
-    return b
-
-def foo(a, d):
-    n = d + a
-    a = 10000
-    return n
-
 def main():
-    a = baz(12)
-    b = foo(a, 3)
-    return b + a
+    if 0 or 0:
+        b = 10
+    else:
+        b = 6
+    return b
 
 main()

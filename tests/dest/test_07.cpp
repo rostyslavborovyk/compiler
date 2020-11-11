@@ -9,6 +9,10 @@ int main()
 
 	"push rbp;"
 	"mov rbp, rsp;"
+	"jmp _func_main_end;"
+	"_func_main:;"
+	"push rbp;"
+	"mov rbp, esp;"
 	"mov rax, 100;"
 	"push rax;"
 	"mov rax, 10;"
@@ -50,6 +54,11 @@ int main()
 	"pop rbx;"
 	"pop rax;"
 	"sub rax, rbx;"
+	"mov esp, rbp;"
+	"pop rbp;"
+	"ret ;"
+	"_func_main_end:;"
+	"call _func_main;"
 	"mov rsp, rbp;"
 	"pop rbp;"
 

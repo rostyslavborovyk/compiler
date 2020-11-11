@@ -9,6 +9,10 @@ int main()
 
 	"push rbp;"
 	"mov rbp, rsp;"
+	"jmp _func_main_end;"
+	"_func_main:;"
+	"push rbp;"
+	"mov rbp, esp;"
 	"mov rax, 0;"
 	"cmp rax, 0;"
 	"je _there_2;"
@@ -34,6 +38,12 @@ int main()
 	"mov rax, 6;"
 	"mov [rbp - 8], rax;"
 	"_post_cond_1:;"
+	"mov rax, [rbp - 8];"
+	"mov esp, rbp;"
+	"pop rbp;"
+	"ret ;"
+	"_func_main_end:;"
+	"call _func_main;"
 	"mov rsp, rbp;"
 	"pop rbp;"
 
