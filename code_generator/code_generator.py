@@ -149,6 +149,7 @@ class CodeGenerator:
         self.generated_code = map(lambda x: x.replace("ebx", "rbx"), self.generated_code)
         self.generated_code = map(lambda x: x.replace("edx", "rdx"), self.generated_code)
         self.generated_code = map(lambda x: x.replace("ebp", "rbp"), self.generated_code)
+        self.generated_code = map(lambda x: x.replace("esp", "rsp"), self.generated_code)
         self.generated_code = map(lambda x: x.replace("cdq", "cqo"), self.generated_code)
 
         # doubling the offset from 4 bytes per var to 8 bytes (for 64 bit systems)
@@ -162,7 +163,6 @@ class CodeGenerator:
         #     "mov rsp, rbp",
         #     "pop rbp"
         # ])
-        self.generated_code.append("mov b, eax")
         generated_string = "\n\t".join(map(lambda x: f"\"{x};\"", self.generated_code))
 
         with open("build/build_template.cpp", "r") as f:

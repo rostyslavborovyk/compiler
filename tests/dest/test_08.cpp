@@ -7,12 +7,10 @@ int main()
 	int b;
   	asm (
 
-	"push rbp;"
-	"mov rbp, rsp;"
 	"jmp _func_main_end;"
 	"_func_main:;"
 	"push rbp;"
-	"mov rbp, esp;"
+	"mov rbp, rsp;"
 	"mov rax, 10;"
 	"neg rax;"
 	"push rax;"
@@ -34,13 +32,11 @@ int main()
 	"pop rax;"
 	"pop rbx;"
 	"add rax, rbx;"
-	"mov esp, rbp;"
+	"mov rsp, rbp;"
 	"pop rbp;"
 	"ret ;"
 	"_func_main_end:;"
 	"call _func_main;"
-	"mov rsp, rbp;"
-	"pop rbp;"
 
   		 : "=r" ( b )
   		 );
