@@ -61,7 +61,7 @@ class AssignExpAST(AST):
         return f"AssignExpAST(var_id={self.var_id}, exp={self.exp})"
 
 
-class CondExpAST(AST):
+class CondStatementAST(AST):
     def __init__(self, cond, node_if, node_else):
         self.cond = cond
         self.node_if = node_if
@@ -75,6 +75,15 @@ class CondExpAST(AST):
               f"\t{indent}node_else={self.node_else.prettyAST(depth + 1)}" \
               f"{indent})\n"
         return res
+
+
+class WhileStatementAST(AST):
+    def __init__(self, cond, while_body):
+        self.cond = cond
+        self.while_body = while_body
+
+    def prettyAST(self, depth=0):
+        return "None"
 
 
 class IdAST(AST):

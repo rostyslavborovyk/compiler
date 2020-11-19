@@ -200,22 +200,6 @@ class Lexer:
                 token = self._get_token("=")
                 tokens_list.append(token)
                 self._set_next_char()
-            # elif self.cur_char == "-":
-            #     token = self._get_token("-")
-            #     tokens_list.append(token)
-            #     self._set_next_char()
-            # elif self.cur_char == "+":
-            #     token = self._get_token("+")
-            #     tokens_list.append(token)
-            #     self._set_next_char()
-            # elif self.cur_char == "*":
-            #     token = self._get_token("*")
-            #     tokens_list.append(token)
-            #     self._set_next_char()
-            # elif self.cur_char == "/":
-            #     token = self._get_token("/")
-            #     tokens_list.append(token)
-            #     self._set_next_char()
             elif self.cur_char in Token.OPERATIONS.values():
                 token = self._process_operations()
                 tokens_list.append(token)

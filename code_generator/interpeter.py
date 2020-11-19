@@ -1,5 +1,6 @@
-from my_parser.AST import NumAST, StringAST, BinOpAST, UnOpAST, AST, StatementsListAST, AssignExpAST, IdAST, CondExpAST, \
-    FunctionAST, FunctionCallAST, ProgramAST
+from my_parser.AST import NumAST, StringAST, BinOpAST, UnOpAST, AST, StatementsListAST, AssignExpAST, IdAST, \
+    CondStatementAST, \
+    FunctionAST, FunctionCallAST, ProgramAST, WhileStatementAST
 from typing import Union, Type, Dict
 
 from code_generator.code_generator import CodeGenerator
@@ -112,11 +113,17 @@ class Interpreter:
         if var_offset is None:
             raise NoSuchVariableException(f"No such variable {node.var_id}")
 
-    def _visit_CondExpAST(self, node: CondExpAST) -> None:
+    def _visit_CondStatementAST(self, node: CondStatementAST) -> None:
         self.code_generator.if_statement(
             lambda: self._visit(node.cond),
             lambda: self._visit(node.node_if),
             lambda: self._visit(node.node_else),
+        )
+
+    def _visit_WhileStatementAST(self, node: WhileStatementAST) -> None:
+        self.code_generator.while_statement(
+            lambda: self._visit(node.cond),
+            lambda: self._visit(node.while_body),
         )
 
     def _visit_BinOpAST(self, node: BinOpAST) -> None:

@@ -1,33 +1,35 @@
-jmp _func_foo_end
-_func_foo:
+jmp _func_main_end
+_func_main:
 push ebp
 mov ebp, esp
-mov eax, 2
+mov eax, 1
 push eax
-mov eax, [ebp + 8]
+mov eax, 3
+push eax
+_start_cycle_1:
+mov eax, [ebp - 8]
+cmp eax, 0
+je _end_cycle_1
+mov eax, [ebp - 4]
+push eax
+mov eax, 2
 push eax
 pop eax
 pop ebx
 xor edx, edx
 cdq
 imul ebx
+mov [ebp - 4], eax
+mov eax, [ebp - 8]
 push eax
 mov eax, 1
 push eax
-pop eax
 pop ebx
-add eax, ebx
-mov esp, ebp
-pop ebp
-ret 4
-_func_foo_end:
-jmp _func_main_end
-_func_main:
-push ebp
-mov ebp, esp
-push 2
-call _func_foo
-push eax
+pop eax
+sub eax, ebx
+mov [ebp - 8], eax
+jmp _start_cycle_1
+_end_cycle_1:
 mov eax, [ebp - 4]
 mov esp, ebp
 pop ebp

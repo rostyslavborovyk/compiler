@@ -34,6 +34,20 @@ class CodeGenerator:
         else_exp()
         self.add(f"{l2}:")
 
+    def while_statement(self, cond: Callable[[], None], while_body: Callable[[], None]):
+        unique_id = self._get_unique_id()
+
+        start_l = f"_start_cycle_{unique_id}"
+        end_l = f"_end_cycle_{unique_id}"
+
+        self.add(f"{start_l}:")
+        cond()
+        self.add(f"cmp eax, 0")
+        self.add(f"je {end_l}")
+        while_body()
+        self.add(f"jmp {start_l}")
+        self.add(f"{end_l}:")
+
     def div_op(self, left: Callable[[], None], right: Callable[[], None]) -> None:
         left()
         self.add(f"push eax")

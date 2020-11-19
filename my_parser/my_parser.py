@@ -1,7 +1,7 @@
 from typing import List, Type
 
 from my_parser.AST import AST, StringAST, DecimalAST, BinOpAST, UnOpAST, AssignExpAST, StatementsListAST, IdAST, \
-    CondExpAST, FunctionAST, FunctionCallAST, ProgramAST
+    CondStatementAST, FunctionAST, FunctionCallAST, ProgramAST, WhileStatementAST
 from exceptions.my_exceptions import InvalidSyntaxException, EOF
 from lexer.my_token import Token
 
@@ -13,6 +13,7 @@ class Parser:
     func_call: ID L_BRACKET top_level_exp (COMMA top_level_exp)* R_BRACKET
     statement_list: statement | statement SLASH_N SLASH_T* statement_list
     statement: assignment_statement | RETURN top_level_exp | conditional_statement
+    | while_statement
     assignment_statement: ID ("=" | "*=") top_level_exp
     conditional_statement:
     IF top_level_exp COLON SLASH_N statement_list SLASH_T* ELSE COLON SLASH_N statement_list
@@ -181,6 +182,7 @@ class Parser:
     def _statement(self, nesting: int) -> Type[AST]:
         """
         statement: assignment_statement | RETURN top_level_exp | conditional_statement
+        | while_statement
         """
         node = None
         if self._is_specific_token(Token.BUILTIN_WORD, Token.BUILTIN_WORDS["RETURN"]):
@@ -188,6 +190,8 @@ class Parser:
             node = self._top_level_exp()
         elif self._is_specific_token(Token.BUILTIN_WORD, Token.BUILTIN_WORDS["IF"]):
             node = self._conditional_statement(nesting)
+        elif self._is_specific_token(Token.BUILTIN_WORD, Token.BUILTIN_WORDS["WHILE"]):
+            node = self._while_statement(nesting)
         elif self._is_specific_token(Token.ID):  # todo set regexp to value to check var validity
             node = self._assignment_statement()
 
@@ -215,7 +219,7 @@ class Parser:
 
         return AssignExpAST(var_id, exp)
 
-    def _conditional_statement(self, nesting: int) -> CondExpAST:
+    def _conditional_statement(self, nesting: int) -> CondStatementAST:
         """
         conditional_statement:
         IF top_level_exp COLON SLASH_N statement_list SLASH_T* ELSE COLON SLASH_N statement_list
@@ -232,7 +236,16 @@ class Parser:
         self._check(Token.SLASH_N)
         node_else = self._statement_list(nesting + 1)
 
-        return CondExpAST(cond_exp, node_if, node_else)
+        return CondStatementAST(cond_exp, node_if, node_else)
+
+    def _while_statement(self, nesting):
+        self._check(Token.BUILTIN_WORD, Token.BUILTIN_WORDS["WHILE"])
+        cond_exp = self._top_level_exp()
+        self._check(Token.COLON)
+        self._check(Token.SLASH_N)
+        while_body = self._statement_list(nesting + 1)
+
+        return WhileStatementAST(cond_exp, while_body)
 
     def _top_level_exp(self) -> Type[AST]:
         node = None
@@ -424,7 +437,8 @@ class Parser:
     def _is_statement(self) -> bool:
         if self._is_specific_token(Token.BUILTIN_WORD, Token.BUILTIN_WORDS["RETURN"]) \
                 or self._is_specific_token(Token.ID) \
-                or self._is_specific_token(Token.BUILTIN_WORD, Token.BUILTIN_WORDS["IF"]):
+                or self._is_specific_token(Token.BUILTIN_WORD, Token.BUILTIN_WORDS["IF"]) \
+                or self._is_specific_token(Token.BUILTIN_WORD, Token.BUILTIN_WORDS["WHILE"]):
             return True
         return False
 
