@@ -123,7 +123,7 @@ class CodeGenerator:
 
     def write_to_file(self):
         generated_string = "\n".join(self.generated_code)
-        with open("5-02-Python-IV-82-Borovyk.asm", "w") as f:
+        with open("6-02-Python-IV-82-Borovyk.asm", "w") as f:
             f.write(generated_string)
 
     def _double_offset(self, string: str) -> str:

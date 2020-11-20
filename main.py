@@ -17,6 +17,6 @@ def main(text, output_path=None, test=False):
 
 
 if __name__ == '__main__':
-    with open("5-02-Python-IV-82-Borovyk.txt", "rb") as f:
+    with open("6-02-Python-IV-82-Borovyk.txt", "rb") as f:
         program_text = str(f.read())[2:-1]  # trims b'str' to str
     main(program_text)
