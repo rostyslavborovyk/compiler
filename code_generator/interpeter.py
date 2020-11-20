@@ -1,10 +1,13 @@
+from collections import namedtuple
+
+from common.types import CycleLabels
 from my_parser.AST import NumAST, StringAST, BinOpAST, UnOpAST, AST, StatementsListAST, AssignExpAST, IdAST, \
     CondStatementAST, \
-    FunctionAST, FunctionCallAST, ProgramAST, WhileStatementAST
-from typing import Union, Type, Dict
+    FunctionAST, FunctionCallAST, ProgramAST, WhileStatementAST, BreakStatementAST, ContinueStatementAST
+from typing import Union, Type, Dict, List
 
 from code_generator.code_generator import CodeGenerator
-from exceptions.my_exceptions import NoVisitMethodException, NoSuchVariableException
+from exceptions.my_exceptions import NoVisitMethodException, NoSuchVariableException, InvalidSyntaxException
 from lexer.my_token import Token
 from copy import deepcopy
 
@@ -19,6 +22,9 @@ class Interpreter:
         self.func_args_var_map: Dict[str, int] = dict()
         self.func_map = set()
         self.var_offset = 0
+
+        # list of end_of_cycle labels for BREAK to exit
+        self.cycle_labels_list: List[CycleLabels] = []
 
     def _decrement_offset(self) -> None:
         self.var_offset -= 4
@@ -124,7 +130,34 @@ class Interpreter:
         self.code_generator.while_statement(
             lambda: self._visit(node.cond),
             lambda: self._visit(node.while_body),
+            lambda x: self.cycle_labels_list.append(x)
         )
+        if not len(self.cycle_labels_list):
+            raise InvalidSyntaxException("No end_of_cycle label")
+
+        self.cycle_labels_list.pop()
+
+    def _visit_BreakStatementAST(self, node: BreakStatementAST) -> None:
+        """
+        Looks to last CycleLabels in self.cycle_labels_list, and set code to jump to CycleLabels.end,
+        removes this label from list
+        """
+        if not len(self.cycle_labels_list):
+            raise InvalidSyntaxException("Statement break should be used inside of a loop")
+
+        # todo redo to process continue and break
+        self.code_generator.add(f"jmp {self.cycle_labels_list[-1].end}")
+
+    def _visit_ContinueStatementAST(self, node: ContinueStatementAST) -> None:
+        """
+        Looks to last CycleLabels in self.cycle_labels_list, and set code to jump to CycleLabels.start,
+        removes this label from list
+        """
+        if not len(self.cycle_labels_list):
+            raise InvalidSyntaxException("Statement break should be used inside of a loop")
+
+        # todo redo to process continue and break
+        self.code_generator.add(f"jmp {self.cycle_labels_list[-1].start}")
 
     def _visit_BinOpAST(self, node: BinOpAST) -> None:
         if node.op.value == Token.OPERATIONS["DIV"]:

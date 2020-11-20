@@ -86,6 +86,22 @@ class WhileStatementAST(AST):
         return "None"
 
 
+class BreakStatementAST(AST):
+    def __init__(self):
+        pass
+
+    def prettyAST(self, depth=0):
+        return "None"
+
+
+class ContinueStatementAST(AST):
+    def __init__(self):
+        pass
+
+    def prettyAST(self, depth=0):
+        return "None"
+
+
 class IdAST(AST):
     def __init__(self, var_id: str):
         self.var_id = var_id

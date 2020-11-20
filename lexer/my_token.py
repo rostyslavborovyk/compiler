@@ -23,7 +23,9 @@ class Token:
         "RETURN": "return",
         "IF": "if",
         "ELSE": "else",
-        "WHILE": "while"
+        "WHILE": "while",
+        "BREAK": "break",
+        "CONTINUE": "continue",
     }
 
     OPERATIONS = {

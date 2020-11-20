@@ -1,7 +1,8 @@
 from typing import List, Type
 
 from my_parser.AST import AST, StringAST, DecimalAST, BinOpAST, UnOpAST, AssignExpAST, StatementsListAST, IdAST, \
-    CondStatementAST, FunctionAST, FunctionCallAST, ProgramAST, WhileStatementAST
+    CondStatementAST, FunctionAST, FunctionCallAST, ProgramAST, WhileStatementAST, BreakStatementAST, \
+    ContinueStatementAST
 from exceptions.my_exceptions import InvalidSyntaxException, EOF
 from lexer.my_token import Token
 
@@ -142,13 +143,13 @@ class Parser:
             raise InvalidSyntaxException(f"Wrong function call in function {func_id}")
         return node
 
-    def _statement_list(self, nesting: int) -> Type[AST]:
+    def _statement_list(self, nesting: int, is_cycle_body=False) -> Type[AST]:
         """
         statement_list: statement | statement SLASH_N SLASH_T* statement_list
         """
 
         self._check_indent(nesting)
-        statements = [self._statement(nesting)]
+        statements = [self._statement(nesting, is_cycle_body)]
         if not self._checkEOF():
             while self._is_specific_token(Token.SLASH_T) and self._is_in_previous_row():
                 self._check(Token.SLASH_T)
@@ -172,14 +173,14 @@ class Parser:
             if self._checkEOF():
                 break
             if self._is_statement():
-                statements.append(self._statement(nesting))
+                statements.append(self._statement(nesting, is_cycle_body))
                 if self._end_of_block(nesting):
                     if self._is_specific_token(Token.SLASH_N):
                         self._check(Token.SLASH_N)
                     break
         return StatementsListAST(statements)
 
-    def _statement(self, nesting: int) -> Type[AST]:
+    def _statement(self, nesting: int, is_cycle_body=False) -> Type[AST]:
         """
         statement: assignment_statement | RETURN top_level_exp | conditional_statement
         | while_statement
@@ -189,9 +190,13 @@ class Parser:
             self._check(Token.BUILTIN_WORD, Token.BUILTIN_WORDS["RETURN"])
             node = self._top_level_exp()
         elif self._is_specific_token(Token.BUILTIN_WORD, Token.BUILTIN_WORDS["IF"]):
-            node = self._conditional_statement(nesting)
+            node = self._conditional_statement(nesting, is_cycle_body)
         elif self._is_specific_token(Token.BUILTIN_WORD, Token.BUILTIN_WORDS["WHILE"]):
             node = self._while_statement(nesting)
+        elif is_cycle_body and self._is_specific_token(Token.BUILTIN_WORD, Token.BUILTIN_WORDS["BREAK"]):
+            node = self._break_statement()
+        elif is_cycle_body and self._is_specific_token(Token.BUILTIN_WORD, Token.BUILTIN_WORDS["CONTINUE"]):
+            node = self._continue_statement()
         elif self._is_specific_token(Token.ID):  # todo set regexp to value to check var validity
             node = self._assignment_statement()
 
@@ -219,7 +224,7 @@ class Parser:
 
         return AssignExpAST(var_id, exp)
 
-    def _conditional_statement(self, nesting: int) -> CondStatementAST:
+    def _conditional_statement(self, nesting: int, is_cycle_body=False) -> CondStatementAST:
         """
         conditional_statement:
         IF top_level_exp COLON SLASH_N statement_list SLASH_T* ELSE COLON SLASH_N statement_list
@@ -228,24 +233,32 @@ class Parser:
         cond_exp = self._top_level_exp()
         self._check(Token.COLON)
         self._check(Token.SLASH_N)
-        node_if = self._statement_list(nesting + 1)
+        node_if = self._statement_list(nesting + 1, is_cycle_body)
         if not self._is_specific_token(Token.BUILTIN_WORD, Token.BUILTIN_WORDS["ELSE"]):
             self._check_indent(nesting)
         self._check(Token.BUILTIN_WORD, Token.BUILTIN_WORDS["ELSE"])
         self._check(Token.COLON)
         self._check(Token.SLASH_N)
-        node_else = self._statement_list(nesting + 1)
+        node_else = self._statement_list(nesting + 1, is_cycle_body)
 
         return CondStatementAST(cond_exp, node_if, node_else)
 
-    def _while_statement(self, nesting):
+    def _while_statement(self, nesting) -> WhileStatementAST:
         self._check(Token.BUILTIN_WORD, Token.BUILTIN_WORDS["WHILE"])
         cond_exp = self._top_level_exp()
         self._check(Token.COLON)
         self._check(Token.SLASH_N)
-        while_body = self._statement_list(nesting + 1)
+        while_body = self._statement_list(nesting + 1, True)
 
         return WhileStatementAST(cond_exp, while_body)
+
+    def _break_statement(self) -> BreakStatementAST:
+        self._check(Token.BUILTIN_WORD, Token.BUILTIN_WORDS["BREAK"])
+        return BreakStatementAST()
+
+    def _continue_statement(self) -> ContinueStatementAST:
+        self._check(Token.BUILTIN_WORD, Token.BUILTIN_WORDS["CONTINUE"])
+        return ContinueStatementAST()
 
     def _top_level_exp(self) -> Type[AST]:
         node = None
@@ -438,7 +451,9 @@ class Parser:
         if self._is_specific_token(Token.BUILTIN_WORD, Token.BUILTIN_WORDS["RETURN"]) \
                 or self._is_specific_token(Token.ID) \
                 or self._is_specific_token(Token.BUILTIN_WORD, Token.BUILTIN_WORDS["IF"]) \
-                or self._is_specific_token(Token.BUILTIN_WORD, Token.BUILTIN_WORDS["WHILE"]):
+                or self._is_specific_token(Token.BUILTIN_WORD, Token.BUILTIN_WORDS["WHILE"]) \
+                or self._is_specific_token(Token.BUILTIN_WORD, Token.BUILTIN_WORDS["BREAK"]) \
+                or self._is_specific_token(Token.BUILTIN_WORD, Token.BUILTIN_WORDS["CONTINUE"]):
             return True
         return False
 

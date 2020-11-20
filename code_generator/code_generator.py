@@ -1,6 +1,7 @@
 from typing import Callable
 import re
 
+from common.types import CycleLabels
 from my_parser.AST import FunctionAST
 
 
@@ -34,11 +35,15 @@ class CodeGenerator:
         else_exp()
         self.add(f"{l2}:")
 
-    def while_statement(self, cond: Callable[[], None], while_body: Callable[[], None]):
+    def while_statement(self, cond: Callable[[], None], while_body: Callable[[], None],
+                        add_cycle_labels: Callable[[CycleLabels], None]) -> None:
         unique_id = self._get_unique_id()
 
         start_l = f"_start_cycle_{unique_id}"
         end_l = f"_end_cycle_{unique_id}"
+
+        # adding CycleLabels for BREAK and CONTINUE statements
+        add_cycle_labels(CycleLabels(start_l, end_l))
 
         self.add(f"{start_l}:")
         cond()

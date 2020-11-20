@@ -5,8 +5,7 @@ def main():
         if n-2:
             a *= 2
         else:
-            n = n - 1
-            continue
+            break
         n = n - 1
     return a
 
