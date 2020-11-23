@@ -92,3 +92,7 @@ class Test1(TestCase):
     def test_18(self):
         res = build_and_run("test_18")
         self.assertEqual(res, 2)
+
+    def test_19(self):
+        res = build_and_run("test_19")
+        self.assertEqual(res, 1)

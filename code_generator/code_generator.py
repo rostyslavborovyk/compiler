@@ -83,7 +83,7 @@ class CodeGenerator:
         self.add("pop eax")
         self.add("cdq")
         self.add("idiv ebx")
-        self.add("mov eax, ebx")
+        self.add("mov eax, edx")
 
     def plus_op(self, left: Callable[[], None], right: Callable[[], None]) -> None:
         left()

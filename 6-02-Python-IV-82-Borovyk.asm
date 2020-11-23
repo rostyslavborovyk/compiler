@@ -10,7 +10,7 @@ pop ebx
 pop eax
 cdq
 idiv ebx
-mov eax, ebx
+mov eax, edx
 jmp _func_main_pre_end
 _func_main_pre_end:
 mov esp, ebp
