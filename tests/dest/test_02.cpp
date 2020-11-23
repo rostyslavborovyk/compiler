@@ -24,6 +24,8 @@ int main()
 	"pop rax;"
 	"cqo;"
 	"idiv rbx;"
+	"jmp _func_main_pre_end;"
+	"_func_main_pre_end:;"
 	"mov rsp, rbp;"
 	"pop rbp;"
 	"ret ;"

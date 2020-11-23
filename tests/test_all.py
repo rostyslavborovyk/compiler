@@ -88,3 +88,7 @@ class Test1(TestCase):
     def test_17(self):
         res = build_and_run("test_17")
         self.assertEqual(res, 8)
+
+    def test_18(self):
+        res = build_and_run("test_18")
+        self.assertEqual(res, 2)

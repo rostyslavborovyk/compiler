@@ -31,6 +31,8 @@ int main()
 	"xor rax, rax;"
 	"jmp _end_1;"
 	"_end_1:;"
+	"jmp _func_main_pre_end;"
+	"_func_main_pre_end:;"
 	"mov rsp, rbp;"
 	"pop rbp;"
 	"ret ;"

@@ -2,7 +2,7 @@ from typing import List, Type
 
 from my_parser.AST import AST, StringAST, DecimalAST, BinOpAST, UnOpAST, AssignExpAST, StatementsListAST, IdAST, \
     CondStatementAST, FunctionAST, FunctionCallAST, ProgramAST, WhileStatementAST, BreakStatementAST, \
-    ContinueStatementAST
+    ContinueStatementAST, ReturnStatementAST
 from exceptions.my_exceptions import InvalidSyntaxException, EOF
 from lexer.my_token import Token
 
@@ -187,8 +187,7 @@ class Parser:
         """
         node = None
         if self._is_specific_token(Token.BUILTIN_WORD, Token.BUILTIN_WORDS["RETURN"]):
-            self._check(Token.BUILTIN_WORD, Token.BUILTIN_WORDS["RETURN"])
-            node = self._top_level_exp()
+            node = self._return_statement()
         elif self._is_specific_token(Token.BUILTIN_WORD, Token.BUILTIN_WORDS["IF"]):
             node = self._conditional_statement(nesting, is_cycle_body)
         elif self._is_specific_token(Token.BUILTIN_WORD, Token.BUILTIN_WORDS["WHILE"]):
@@ -223,6 +222,10 @@ class Parser:
             raise InvalidSyntaxException("Wrong token in factor expression")
 
         return AssignExpAST(var_id, exp)
+
+    def _return_statement(self):
+        self._check(Token.BUILTIN_WORD, Token.BUILTIN_WORDS["RETURN"])
+        return ReturnStatementAST(exp=self._top_level_exp())
 
     def _conditional_statement(self, nesting: int, is_cycle_body=False) -> CondStatementAST:
         """

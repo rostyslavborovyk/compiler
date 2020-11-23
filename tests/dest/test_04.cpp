@@ -32,6 +32,8 @@ int main()
 	"xor rdx, rdx;"
 	"cqo;"
 	"imul rbx;"
+	"jmp _func_main_pre_end;"
+	"_func_main_pre_end:;"
 	"mov rsp, rbp;"
 	"pop rbp;"
 	"ret ;"

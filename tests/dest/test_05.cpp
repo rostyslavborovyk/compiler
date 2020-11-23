@@ -12,6 +12,8 @@ int main()
 	"push rbp;"
 	"mov rbp, rsp;"
 	"mov rax, 100;"
+	"jmp _func_main_pre_end;"
+	"_func_main_pre_end:;"
 	"mov rsp, rbp;"
 	"pop rbp;"
 	"ret ;"

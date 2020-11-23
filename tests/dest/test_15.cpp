@@ -40,6 +40,8 @@ int main()
 	"jmp _start_cycle_1;"
 	"_end_cycle_1:;"
 	"mov rax, [rbp - 8];"
+	"jmp _func_main_pre_end;"
+	"_func_main_pre_end:;"
 	"mov rsp, rbp;"
 	"pop rbp;"
 	"ret ;"

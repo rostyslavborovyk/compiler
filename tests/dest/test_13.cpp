@@ -60,6 +60,8 @@ int main()
 	"imul rbx;"
 	"mov [rbp - 16], rax;"
 	"mov rax, [rbp - 16];"
+	"jmp _func_main_pre_end;"
+	"_func_main_pre_end:;"
 	"mov rsp, rbp;"
 	"pop rbp;"
 	"ret ;"

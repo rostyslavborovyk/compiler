@@ -102,6 +102,14 @@ class ContinueStatementAST(AST):
         return "None"
 
 
+class ReturnStatementAST(AST):
+    def __init__(self, exp):
+        self.exp = exp
+
+    def prettyAST(self, depth=0):
+        return "None"
+
+
 class IdAST(AST):
     def __init__(self, var_id: str):
         self.var_id = var_id

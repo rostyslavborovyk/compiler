@@ -3,7 +3,8 @@ from collections import namedtuple
 from common.types import CycleLabels
 from my_parser.AST import NumAST, StringAST, BinOpAST, UnOpAST, AST, StatementsListAST, AssignExpAST, IdAST, \
     CondStatementAST, \
-    FunctionAST, FunctionCallAST, ProgramAST, WhileStatementAST, BreakStatementAST, ContinueStatementAST
+    FunctionAST, FunctionCallAST, ProgramAST, WhileStatementAST, BreakStatementAST, ContinueStatementAST, \
+    ReturnStatementAST
 from typing import Union, Type, Dict, List
 
 from code_generator.code_generator import CodeGenerator
@@ -32,17 +33,17 @@ class Interpreter:
     def _visit_exception(self, node) -> None:
         raise NoVisitMethodException(f"No _visit_{type(node).__name__} method")
 
-    def _visit(self, node: Type[AST]) -> None:
+    def _visit(self, node: Type[AST], **kwargs) -> None:
         method_name = "_visit_" + type(node).__name__
         visitor = getattr(self, method_name, self._visit_exception)
-        visitor(node)
+        visitor(node, **kwargs)
 
-    def _visit_ProgramAST(self, node: ProgramAST):
+    def _visit_ProgramAST(self, node: ProgramAST, **kwargs):
         # print("visited ProgramAst")
         for node in node.hl_statements:
-            self._visit(node)
+            self._visit(node, **kwargs)
 
-    def _visit_FunctionAST(self, node: FunctionAST):
+    def _visit_FunctionAST(self, node: FunctionAST, **kwargs):
         # print("visited function definition")
         # saving var map state and offset
         saved_var_map = deepcopy(self.var_map)
@@ -54,6 +55,7 @@ class Interpreter:
             self.func_args_var_map.update({var_id: var_offset})
 
         func_label = f"{self.code_generator.func_label_wrapper(node.func_id.value)}"
+        func_pre_end_label = f"{func_label}_pre_end"
         # adding labels to omit function
         self.code_generator.add(f"jmp {func_label}_end")
         self.code_generator.add(f"{func_label}:")
@@ -61,10 +63,14 @@ class Interpreter:
         self.code_generator.add("mov ebp, esp")
 
         for statement in node.statement_list.children:
-            self._visit(statement)
+            self._visit(statement, func_pre_end_label=func_pre_end_label)
+
+        # pre end label for jumping after return statement
+        self.code_generator.add(f"{func_pre_end_label}:")
 
         self.code_generator.add("mov esp, ebp")
         self.code_generator.add("pop ebp")
+
         self.code_generator.add(f"ret {len(node.func_args) * 4 if len(node.func_args) else ''}")
         self.code_generator.add(f"{func_label}_end:")
         # removing local vars from local var map
@@ -73,29 +79,29 @@ class Interpreter:
         self.var_map = saved_var_map
         self.var_offset = saved_offset
 
-    def _visit_FunctionCallAST(self, node: FunctionCallAST):
-        print("visited function call")
+    def _visit_FunctionCallAST(self, node: FunctionCallAST, **kwargs):
+        # print("visited function call")
         if node.args:
             for arg in node.args[::-1]:
                 if arg.tok_type == Token.NUMBER_DECIMAL:
                     self.code_generator.add(f"push {arg.value}")
                 elif arg.tok_type == Token.ID:
-                    self._visit(IdAST(arg.value))
+                    self._visit(IdAST(arg.value), **kwargs)
                     self.code_generator.add(f"push eax")
 
         self.code_generator.add(f"call {self.code_generator.func_label_wrapper(node.func_id.value)}")
 
-    def _visit_StatementsListAST(self, node: StatementsListAST) -> None:
+    def _visit_StatementsListAST(self, node: StatementsListAST, **kwargs) -> None:
         for child in node.children:
-            self._visit(child)
+            self._visit(child, **kwargs)
 
             # optional indent after each statement
             # self.code_generator.add("\n")
 
-    def _visit_AssignExpAST(self, node: AssignExpAST) -> None:
+    def _visit_AssignExpAST(self, node: AssignExpAST, **kwargs) -> None:
         var_id = node.var_id.value
 
-        self._visit(node.exp)
+        self._visit(node.exp, **kwargs)
 
         # assigning new variable
         if var_id not in self.var_map:
@@ -108,7 +114,7 @@ class Interpreter:
             var_offset = self.var_map.get(var_id)
             self.code_generator.add(f"mov [ebp - {-var_offset}], eax")
 
-    def _visit_IdAST(self, node: IdAST) -> None:
+    def _visit_IdAST(self, node: IdAST, **kwargs) -> None:
         var_offset = self.var_map.get(node.var_id)
         if var_offset is not None:
             self.code_generator.add(f"mov eax, [ebp - {-var_offset}]")
@@ -119,17 +125,17 @@ class Interpreter:
         if var_offset is None:
             raise NoSuchVariableException(f"No such variable {node.var_id}")
 
-    def _visit_CondStatementAST(self, node: CondStatementAST) -> None:
+    def _visit_CondStatementAST(self, node: CondStatementAST, **kwargs) -> None:
         self.code_generator.if_statement(
-            lambda: self._visit(node.cond),
-            lambda: self._visit(node.node_if),
-            lambda: self._visit(node.node_else),
+            lambda: self._visit(node.cond, **kwargs),
+            lambda: self._visit(node.node_if, **kwargs),
+            lambda: self._visit(node.node_else, **kwargs),
         )
 
-    def _visit_WhileStatementAST(self, node: WhileStatementAST) -> None:
+    def _visit_WhileStatementAST(self, node: WhileStatementAST, **kwargs) -> None:
         self.code_generator.while_statement(
-            lambda: self._visit(node.cond),
-            lambda: self._visit(node.while_body),
+            lambda: self._visit(node.cond, **kwargs),
+            lambda: self._visit(node.while_body, **kwargs),
             lambda x: self.cycle_labels_list.append(x)
         )
         if not len(self.cycle_labels_list):
@@ -137,7 +143,7 @@ class Interpreter:
 
         self.cycle_labels_list.pop()
 
-    def _visit_BreakStatementAST(self, node: BreakStatementAST) -> None:
+    def _visit_BreakStatementAST(self, node: BreakStatementAST, **kwargs) -> None:
         """
         Looks to last CycleLabels in self.cycle_labels_list, and set code to jump to CycleLabels.end,
         removes this label from list
@@ -148,7 +154,7 @@ class Interpreter:
         # todo redo to process continue and break
         self.code_generator.add(f"jmp {self.cycle_labels_list[-1].end}")
 
-    def _visit_ContinueStatementAST(self, node: ContinueStatementAST) -> None:
+    def _visit_ContinueStatementAST(self, node: ContinueStatementAST, **kwargs) -> None:
         """
         Looks to last CycleLabels in self.cycle_labels_list, and set code to jump to CycleLabels.start,
         removes this label from list
@@ -159,51 +165,58 @@ class Interpreter:
         # todo redo to process continue and break
         self.code_generator.add(f"jmp {self.cycle_labels_list[-1].start}")
 
-    def _visit_BinOpAST(self, node: BinOpAST) -> None:
+    def _visit_ReturnStatementAST(self, node: ReturnStatementAST, **kwargs) -> None:
+        self._visit(node.exp)
+        label = kwargs.get("func_pre_end_label", None)
+        if label is not None:
+            print("Pre end label is ", label)
+            self.code_generator.add(f"jmp {label}")
+
+    def _visit_BinOpAST(self, node: BinOpAST, **kwargs) -> None:
         if node.op.value == Token.OPERATIONS["DIV"]:
             self.code_generator.div_op(
-                lambda: self._visit(node.left),
-                lambda: self._visit(node.right)
+                lambda: self._visit(node.left, **kwargs),
+                lambda: self._visit(node.right, **kwargs)
             )
 
         elif node.op.value == Token.OPERATIONS["MUL"]:
             self.code_generator.mul_op(
-                lambda: self._visit(node.left),
-                lambda: self._visit(node.right)
+                lambda: self._visit(node.left, **kwargs),
+                lambda: self._visit(node.right, **kwargs)
             )
 
         elif node.op.value == Token.OPERATIONS["PLUS"]:
             self.code_generator.plus_op(
-                lambda: self._visit(node.left),
-                lambda: self._visit(node.right)
+                lambda: self._visit(node.left, **kwargs),
+                lambda: self._visit(node.right, **kwargs)
             )
 
         elif node.op.value == Token.OPERATIONS["MINUS"]:
             self.code_generator.sub_op(
-                lambda: self._visit(node.left),
-                lambda: self._visit(node.right)
+                lambda: self._visit(node.left, **kwargs),
+                lambda: self._visit(node.right, **kwargs)
             )
 
         elif node.op.value == Token.OPERATIONS["OR"]:
             self.code_generator.logical_or_op(
-                lambda: self._visit(node.left),
-                lambda: self._visit(node.right)
+                lambda: self._visit(node.left, **kwargs),
+                lambda: self._visit(node.right, **kwargs)
             )
 
-    def _visit_UnOpAST(self, node: UnOpAST) -> None:
+    def _visit_UnOpAST(self, node: UnOpAST, **kwargs) -> None:
         if node.op.value == Token.OPERATIONS["MINUS"]:
-            self._visit(node.right)
+            self._visit(node.right, **kwargs)
 
             self.code_generator.add("neg eax")
 
-    def _visit_DecimalAST(self, node: Union[NumAST, StringAST]) -> None:
+    def _visit_DecimalAST(self, node: Union[NumAST, StringAST], **kwargs) -> None:
         self.code_generator.add(f"mov eax, {node.value}")
 
-    def _visit_BinaryAST(self, node: Union[NumAST, StringAST]):
+    def _visit_BinaryAST(self, node: Union[NumAST, StringAST], **kwargs):
         print(f"visiting {node}")
         pass
 
-    def _visit_StringAST(self, node: Union[NumAST, StringAST]):
+    def _visit_StringAST(self, node: Union[NumAST, StringAST], **kwargs):
         print(f"visiting {node}")
         pass
 

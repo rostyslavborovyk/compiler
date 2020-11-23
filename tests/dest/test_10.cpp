@@ -37,6 +37,8 @@ int main()
 	"mov [rbp - 8], rax;"
 	"_post_cond_1:;"
 	"mov rax, [rbp - 8];"
+	"jmp _func_main_pre_end;"
+	"_func_main_pre_end:;"
 	"mov rsp, rbp;"
 	"pop rbp;"
 	"ret ;"
