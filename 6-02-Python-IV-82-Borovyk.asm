@@ -2,37 +2,15 @@ jmp _func_main_end
 _func_main:
 push ebp
 mov ebp, esp
-mov eax, 1
+mov eax, 10
 push eax
-mov eax, 4
+mov eax, 3
 push eax
-_start_cycle_1:
-mov eax, [ebp - 8]
-cmp eax, 0
-je _end_cycle_1
-mov eax, [ebp - 4]
-push eax
-mov eax, 2
-push eax
-pop eax
 pop ebx
-xor edx, edx
+pop eax
 cdq
-imul ebx
-mov [ebp - 4], eax
-mov eax, [ebp - 4]
-jmp _func_main_pre_end
-mov eax, [ebp - 8]
-push eax
-mov eax, 1
-push eax
-pop ebx
-pop eax
-sub eax, ebx
-mov [ebp - 8], eax
-jmp _start_cycle_1
-_end_cycle_1:
-mov eax, [ebp - 4]
+idiv ebx
+mov eax, ebx
 jmp _func_main_pre_end
 _func_main_pre_end:
 mov esp, ebp

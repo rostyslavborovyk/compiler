@@ -185,6 +185,12 @@ class Interpreter:
                 lambda: self._visit(node.right, **kwargs)
             )
 
+        elif node.op.value == Token.OPERATIONS["MOD"]:
+            self.code_generator.mod_op(
+                lambda: self._visit(node.left, **kwargs),
+                lambda: self._visit(node.right, **kwargs)
+            )
+
         elif node.op.value == Token.OPERATIONS["PLUS"]:
             self.code_generator.plus_op(
                 lambda: self._visit(node.left, **kwargs),

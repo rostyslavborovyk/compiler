@@ -33,6 +33,7 @@ class Token:
         "PLUS": "+",
         "DIV": "/",
         "MUL": "*",
+        "MOD": "%",
         "OR": "or",
     }
 

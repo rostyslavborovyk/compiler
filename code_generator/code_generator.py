@@ -74,6 +74,17 @@ class CodeGenerator:
         self.add("cdq")
         self.add("imul ebx")
 
+    def mod_op(self, left: Callable[[], None], right: Callable[[], None]) -> None:
+        left()
+        self.add(f"push eax")
+        right()
+        self.add("push eax")
+        self.add("pop ebx")
+        self.add("pop eax")
+        self.add("cdq")
+        self.add("idiv ebx")
+        self.add("mov eax, ebx")
+
     def plus_op(self, left: Callable[[], None], right: Callable[[], None]) -> None:
         left()
         self.add("push eax")

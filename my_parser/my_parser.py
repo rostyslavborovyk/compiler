@@ -23,7 +23,7 @@ class Parser:
     top_level_exp: exp_or
     exp_or: exp (OR exp)* | exp
     exp: term ((MINUS | PLUS) term)* | term
-    term: factor ((DIV | MUL) factor)* | factor
+    term: factor ((DIV | MUL | MOD) factor)* | factor
     factor: L_BRACKET top_level_exp R_BRACKET | unary_op | number | STRING | ID
     number: DECIMAL | BINARY
     unary_op: MINUS factor
@@ -335,7 +335,7 @@ class Parser:
 
     def _term(self) -> Type[AST]:
         """
-        term: factor ((DIV | MUL) factor)* | factor
+        term: factor ((DIV | MUL | MOD) factor)* | factor
         """
         if self.current_token == EOF:
             raise InvalidSyntaxException("End of file")
@@ -347,11 +347,13 @@ class Parser:
         while self.current_token != EOF \
                 and self.current_token.tok_type == Token.OPERATION \
                 and self.current_token.value in (
-                Token.OPERATIONS["DIV"], Token.OPERATIONS["MUL"]):
+                Token.OPERATIONS["DIV"], Token.OPERATIONS["MUL"], Token.OPERATIONS["MOD"]):
             if token.value == Token.OPERATIONS["DIV"]:
                 self._check(Token.OPERATION, Token.OPERATIONS["DIV"])
             elif token.value == Token.OPERATIONS["MUL"]:
                 self._check(Token.OPERATION, Token.OPERATIONS["MUL"])
+            elif token.value == Token.OPERATIONS["MOD"]:
+                self._check(Token.OPERATION, Token.OPERATIONS["MOD"])
             node = BinOpAST(node, token, self._factor())
             token = self.current_token
 
