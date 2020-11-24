@@ -2,15 +2,14 @@ jmp _func_main_end
 _func_main:
 push ebp
 mov ebp, esp
-mov eax, 10
+mov eax, 1
 push eax
-mov eax, 3
+mov eax, 2
 push eax
 pop ebx
 pop eax
-cdq
-idiv ebx
-mov eax, edx
+cmp eax, ebx
+setne al
 jmp _func_main_pre_end
 _func_main_pre_end:
 mov esp, ebp

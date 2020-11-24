@@ -140,6 +140,19 @@ class BinOpAST(AST):
         return res
 
 
+class CompOpAST(AST):
+    def __init__(self, left, op: Token, right):
+        self.left = left
+        self.op = op
+        self.right = right
+
+    def __repr__(self):
+        return f"CompOpAST(op={self.op})"
+
+    def prettyAST(self, depth=0):
+        return "None"
+
+
 class UnOpAST(AST):
     def __init__(self, op: Token, right):
         self.op = op

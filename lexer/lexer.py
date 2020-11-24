@@ -105,8 +105,31 @@ class Lexer:
             self.cur_char = self.text[self.pos]
         return indents_ls
 
-    def _process_operations(self):
-        lexeme_with_next_char = self.cur_char + self.text[self.pos+1]
+    def _process_comp_operations(self):
+        lexeme_with_next_char = self.cur_char + self.text[self.pos + 1]
+        if lexeme_with_next_char == Token.OPERATIONS["EQ"]:
+            self._set_next_char()
+            return Token(lexeme_with_next_char, Token.OPERATION, (self.row, self.row_pos))
+        elif lexeme_with_next_char == Token.OPERATIONS["NEQ"]:
+            self._set_next_char()
+            return Token(lexeme_with_next_char, Token.OPERATION, (self.row, self.row_pos))
+        elif lexeme_with_next_char == Token.OPERATIONS["GRE"]:
+            self._set_next_char()
+            return Token(lexeme_with_next_char, Token.OPERATION, (self.row, self.row_pos))
+        elif lexeme_with_next_char == Token.OPERATIONS["LSE"]:
+            self._set_next_char()
+            return Token(lexeme_with_next_char, Token.OPERATION, (self.row, self.row_pos))
+
+        elif self.cur_char == Token.OPERATIONS["GR"]:
+            return Token(self.cur_char, Token.OPERATION, (self.row, self.row_pos))
+
+        elif self.cur_char == Token.OPERATIONS["LS"]:
+            return Token(self.cur_char, Token.OPERATION, (self.row, self.row_pos))
+
+        return None
+
+    def _process_assign_operations(self):
+        lexeme_with_next_char = self.cur_char + self.text[self.pos + 1]
         if lexeme_with_next_char in Token.ASSIGNS.values():
             self._set_next_char()
             return Token(lexeme_with_next_char, Token.ASSIGN, (self.row, self.row_pos))
@@ -196,12 +219,17 @@ class Lexer:
                 token = self._get_token(",")
                 tokens_list.append(token)
                 self._set_next_char()
-            elif self.cur_char == "=":
-                token = self._get_token("=")
-                tokens_list.append(token)
-                self._set_next_char()
+            elif self.cur_char in ("=", "!", ">", "<"):
+                token = self._process_comp_operations()
+                if token is not None:
+                    tokens_list.append(token)
+                    self._set_next_char()
+                if token is None and self.cur_char == "=":
+                    token = self._get_token("=")
+                    tokens_list.append(token)
+                    self._set_next_char()
             elif self.cur_char in Token.OPERATIONS.values():
-                token = self._process_operations()
+                token = self._process_assign_operations()
                 tokens_list.append(token)
                 self._set_next_char()
             elif self.cur_char == " ":

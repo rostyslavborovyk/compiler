@@ -4,7 +4,7 @@ from common.types import CycleLabels
 from my_parser.AST import NumAST, StringAST, BinOpAST, UnOpAST, AST, StatementsListAST, AssignExpAST, IdAST, \
     CondStatementAST, \
     FunctionAST, FunctionCallAST, ProgramAST, WhileStatementAST, BreakStatementAST, ContinueStatementAST, \
-    ReturnStatementAST
+    ReturnStatementAST, CompOpAST
 from typing import Union, Type, Dict, List
 
 from code_generator.code_generator import CodeGenerator
@@ -205,6 +205,43 @@ class Interpreter:
 
         elif node.op.value == Token.OPERATIONS["OR"]:
             self.code_generator.logical_or_op(
+                lambda: self._visit(node.left, **kwargs),
+                lambda: self._visit(node.right, **kwargs)
+            )
+
+    def _visit_CompOpAST(self, node: CompOpAST, **kwargs) -> None:
+        if node.op.value == Token.OPERATIONS["EQ"]:
+            self.code_generator.eq_op(
+                lambda: self._visit(node.left, **kwargs),
+                lambda: self._visit(node.right, **kwargs)
+            )
+
+        elif node.op.value == Token.OPERATIONS["NEQ"]:
+            self.code_generator.neq_op(
+                lambda: self._visit(node.left, **kwargs),
+                lambda: self._visit(node.right, **kwargs)
+            )
+
+        elif node.op.value == Token.OPERATIONS["GR"]:
+            self.code_generator.gr_op(
+                lambda: self._visit(node.left, **kwargs),
+                lambda: self._visit(node.right, **kwargs)
+            )
+
+        elif node.op.value == Token.OPERATIONS["LS"]:
+            self.code_generator.ls_op(
+                lambda: self._visit(node.left, **kwargs),
+                lambda: self._visit(node.right, **kwargs)
+            )
+
+        elif node.op.value == Token.OPERATIONS["GRE"]:
+            self.code_generator.gre_op(
+                lambda: self._visit(node.left, **kwargs),
+                lambda: self._visit(node.right, **kwargs)
+            )
+
+        elif node.op.value == Token.OPERATIONS["LSE"]:
+            self.code_generator.lse_op(
                 lambda: self._visit(node.left, **kwargs),
                 lambda: self._visit(node.right, **kwargs)
             )

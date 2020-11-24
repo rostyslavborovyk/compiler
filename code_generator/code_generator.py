@@ -103,6 +103,66 @@ class CodeGenerator:
         self.add("pop eax")
         self.add("sub eax, ebx")
 
+    def eq_op(self, left: Callable[[], None], right: Callable[[], None]) -> None:
+        left()
+        self.add("push eax")
+        right()
+        self.add("push eax")
+        self.add("pop ebx")
+        self.add("pop eax")
+        self.add("cmp eax, ebx")
+        self.add("sete al")
+
+    def neq_op(self, left: Callable[[], None], right: Callable[[], None]) -> None:
+        left()
+        self.add("push eax")
+        right()
+        self.add("push eax")
+        self.add("pop ebx")
+        self.add("pop eax")
+        self.add("cmp eax, ebx")
+        self.add("setne al")
+
+    def gr_op(self, left: Callable[[], None], right: Callable[[], None]) -> None:
+        left()
+        self.add("push eax")
+        right()
+        self.add("push eax")
+        self.add("pop ebx")
+        self.add("pop eax")
+        self.add("cmp eax, ebx")
+        self.add("setg al")
+
+    def ls_op(self, left: Callable[[], None], right: Callable[[], None]) -> None:
+        left()
+        self.add("push eax")
+        right()
+        self.add("push eax")
+        self.add("pop ebx")
+        self.add("pop eax")
+        self.add("cmp eax, ebx")
+        self.add("setl al")
+
+    def gre_op(self, left: Callable[[], None], right: Callable[[], None]) -> None:
+        left()
+        self.add("push eax")
+        right()
+        self.add("push eax")
+        self.add("pop ebx")
+        self.add("pop eax")
+        self.add("cmp eax, ebx")
+        self.add("setge al")
+
+    def lse_op(self, left: Callable[[], None], right: Callable[[], None]) -> None:
+        left()
+        self.add("push eax")
+        right()
+        self.add("push eax")
+        self.add("pop ebx")
+        self.add("pop eax")
+        self.add("cmp eax, ebx")
+        self.add("setle al")
+
     def logical_or_op(self, left: Callable[[], None], right: Callable[[], None]) -> None:
         unique_id = self._get_unique_id()
 

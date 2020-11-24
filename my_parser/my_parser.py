@@ -2,7 +2,7 @@ from typing import List, Type
 
 from my_parser.AST import AST, StringAST, DecimalAST, BinOpAST, UnOpAST, AssignExpAST, StatementsListAST, IdAST, \
     CondStatementAST, FunctionAST, FunctionCallAST, ProgramAST, WhileStatementAST, BreakStatementAST, \
-    ContinueStatementAST, ReturnStatementAST
+    ContinueStatementAST, ReturnStatementAST, CompOpAST
 from exceptions.my_exceptions import InvalidSyntaxException, EOF
 from lexer.my_token import Token
 
@@ -21,7 +21,8 @@ class Parser:
 
     ========================== arithmetical expressions ===========================
     top_level_exp: exp_or
-    exp_or: exp (OR exp)* | exp
+    exp_or: exp_comp (OR exp_comp)* | exp_comp
+    exp_comp: exp ((EQ | NEQ | GR | LS | GRE | LSE) exp)* | exp
     exp: term ((MINUS | PLUS) term)* | term
     term: factor ((DIV | MUL | MOD) factor)* | factor
     factor: L_BRACKET top_level_exp R_BRACKET | unary_op | number | STRING | ID
@@ -273,7 +274,7 @@ class Parser:
 
     def _exp_or(self) -> Type[AST]:
         """
-        exp_or: exp (OR exp)* | exp
+        exp_or: exp_comp (OR exp_comp)* | exp_comp
         """
 
         if self.current_token == EOF:
@@ -281,7 +282,7 @@ class Parser:
 
         node = None
 
-        node = self._expression()
+        node = self._exp_comp()
         token = self.current_token
         while self.current_token != EOF \
                 and self.current_token.tok_type == Token.OPERATION \
@@ -289,7 +290,7 @@ class Parser:
             if token.value == Token.OPERATIONS["OR"]:
                 self._check(Token.OPERATION, Token.OPERATIONS["OR"])
 
-            node = BinOpAST(node, token, self._expression())
+            node = BinOpAST(node, token, self._exp_comp())
             token = self.current_token
 
         if node is None:
@@ -297,6 +298,40 @@ class Parser:
                 f"Wrong token {self.current_token.value} "
                 f"in row={self.current_token.pos[0]}, pos={self.current_token.pos[1]} "
                 f"in exp_or"
+            )
+
+        return node
+
+    def _exp_comp(self) -> Type[AST]:
+        """
+        exp_comp: exp ((EQ | NEQ | GR | LS | GRE | LSE) exp)* | exp
+        """
+
+        if self.current_token == EOF:
+            raise InvalidSyntaxException("End of file")
+
+        node = self._expression()
+        token = self.current_token
+        while self.current_token != EOF \
+                and self.current_token.tok_type == Token.OPERATION \
+                and self.current_token.value in (
+                Token.OPERATIONS["EQ"],
+                Token.OPERATIONS["NEQ"],
+                Token.OPERATIONS["GR"],
+                Token.OPERATIONS["LS"],
+                Token.OPERATIONS["GRE"],
+                Token.OPERATIONS["LSE"],
+        ):
+            self._check(token.tok_type)
+
+            node = CompOpAST(node, token, self._expression())
+            token = self.current_token
+
+        if node is None:
+            raise InvalidSyntaxException(
+                f"Wrong token {self.current_token.value} "
+                f"in row={self.current_token.pos[0]}, pos={self.current_token.pos[1]} "
+                f"in exp_comp"
             )
 
         return node
