@@ -1,8 +1,9 @@
-from typing import List
+from typing import List, Optional
 
-from exceptions.my_exceptions import EOF
+from exceptions.my_exceptions import EOF, InvalidSyntaxException
 from exceptions.my_exceptions import UnrecognizedTokenException
 from lexer.my_token import Token
+import re
 
 
 class Lexer:
@@ -38,9 +39,17 @@ class Lexer:
         elif self.cur_char != EOF:
             raise UnrecognizedTokenException("Invalid token")
 
+    def _validate_id_word(self, word) -> bool:
+        """Validates id names, allowed chars are: all letters, underscores"""
+        p = re.compile(r"[\w_]+")
+        res = re.match(p, word)
+        if not (res and len(res.group(0)) == len(word)):
+            raise InvalidSyntaxException(f"Invalid variable name {word}")
+        return True
+
     def _get_word(self) -> str:
         res = ""
-        while self.cur_char.isalpha() and self.cur_char is not EOF:
+        while (self.cur_char.isalpha() or self.cur_char == "_") and self.cur_char is not EOF:
             res += self.cur_char
             self._set_next_char()
         return res
@@ -174,7 +183,7 @@ class Lexer:
 
         # should be last
         # token for funcs and variables names
-        elif lexeme.isalpha():
+        elif self._validate_id_word(lexeme):
             tok_type = Token.ID
 
         if not tok_type:
@@ -185,7 +194,7 @@ class Lexer:
     def get_tokens(self):
         tokens_list: List[Token] = []
         while self.cur_char != EOF:
-            if self.cur_char.isalpha():
+            if self.cur_char.isalpha() or self.cur_char == "_":
                 # processing letters
                 word = self._get_word()
                 token = self._get_token(word)

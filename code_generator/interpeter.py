@@ -169,7 +169,7 @@ class Interpreter:
         self._visit(node.exp)
         label = kwargs.get("func_pre_end_label", None)
         if label is not None:
-            print("Pre end label is ", label)
+            # print("Pre end label is ", label)
             self.code_generator.add(f"jmp {label}")
 
     def _visit_BinOpAST(self, node: BinOpAST, **kwargs) -> None:
