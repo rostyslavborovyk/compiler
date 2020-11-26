@@ -207,7 +207,7 @@ class Parser:
 
     def _assignment_statement(self) -> AssignExpAST:
         """
-        assignment_statement: ID ("=" | "*=") top_level_exp
+        assignment_statement: ID ("=" | "*=" | "+=") top_level_exp
         """
         var_id = self.current_token
         self._check(Token.ID)
@@ -216,9 +216,11 @@ class Parser:
             self._check(Token.ASSIGN, Token.ASSIGNS["ASSIGN"])
             exp = self._top_level_exp()
         elif self._is_specific_token(Token.ASSIGN, Token.ASSIGNS["ASSIGN_MUL"]):
-            token = self.current_token
             self._check(Token.ASSIGN, Token.ASSIGNS["ASSIGN_MUL"])
             exp = BinOpAST(IdAST(var_id.value), Token("*", Token.OPERATION), self._top_level_exp())
+        elif self._is_specific_token(Token.ASSIGN, Token.ASSIGNS["ASSIGN_SUM"]):
+            self._check(Token.ASSIGN, Token.ASSIGNS["ASSIGN_SUM"])
+            exp = BinOpAST(IdAST(var_id.value), Token("+", Token.OPERATION), self._top_level_exp())
         else:
             raise InvalidSyntaxException("Wrong token in factor expression")
 

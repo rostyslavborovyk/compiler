@@ -7,7 +7,7 @@ OUTPUT_DIR = "tests/dest/"
 
 
 def build_and_run(file_name: str) -> int:
-    with open(f"tests/src/{file_name}.txt", "rb") as f:
+    with open(f"tests/src/{file_name}.py", "rb") as f:
         text = str(f.read())[2:-1]  # trims b'str' to str
     path = OUTPUT_DIR + f"{file_name}.cpp"
     main(text, path, test=True)
@@ -100,3 +100,11 @@ class Test1(TestCase):
     def test_20(self):
         res = build_and_run("test_20")
         self.assertEqual(res, 1)
+
+    def test_21(self):
+        res = build_and_run("test_21")
+        self.assertEqual(res, 1060)
+
+    def test_22(self):
+        res = build_and_run("test_22")
+        self.assertEqual(res, 6)

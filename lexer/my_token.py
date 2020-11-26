@@ -46,6 +46,7 @@ class Token:
     ASSIGNS = {
         "ASSIGN": "=",
         "ASSIGN_MUL": "*=",
+        "ASSIGN_SUM": "+=",
     }
 
     def __init__(self, value, tok_type, pos: Tuple[int, int] = None):

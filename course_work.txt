@@ -1,0 +1,21 @@
+def is_prime(n):
+    curr = 2
+    while curr < n:
+        if n % curr == 0:
+            return 0
+        else:
+            curr = curr + 1
+    return 1
+
+def main(from, to):
+    summ = 0
+    curr = from
+    while curr <= to:
+        if is_prime(curr):
+            summ = summ + curr
+            curr = curr + 1
+        else:
+            curr = curr + 1
+    return summ
+
+main(2, 200)

@@ -115,6 +115,6 @@ mov esp, ebp
 pop ebp
 ret 8
 _func_main_end:
-push 275
+push 100
 push 2
 call _func_main

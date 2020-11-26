@@ -137,6 +137,11 @@ class Lexer:
 
         return None
 
+    def _process_comment(self):
+        self._set_next_char()
+        while self.cur_char != "\\" or not self._is_next_char("n"):
+            self._set_next_char()
+
     def _process_assign_operations(self):
         lexeme_with_next_char = self.cur_char + self.text[self.pos + 1]
         if lexeme_with_next_char in Token.ASSIGNS.values():
@@ -241,6 +246,8 @@ class Lexer:
                 token = self._process_assign_operations()
                 tokens_list.append(token)
                 self._set_next_char()
+            elif self.cur_char == "#":
+                self._process_comment()
             elif self.cur_char == " ":
                 indents = self.handle_indents()
                 if indents:
