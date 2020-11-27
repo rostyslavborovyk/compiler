@@ -2,7 +2,7 @@ from typing import List, Type
 
 from my_parser.AST import AST, StringAST, DecimalAST, BinOpAST, UnOpAST, AssignExpAST, StatementsListAST, IdAST, \
     CondStatementAST, FunctionAST, FunctionCallAST, ProgramAST, WhileStatementAST, BreakStatementAST, \
-    ContinueStatementAST, ReturnStatementAST, CompOpAST
+    ContinueStatementAST, ReturnStatementAST, CompOpAST, BinaryAST
 from exceptions.my_exceptions import InvalidSyntaxException, EOF
 from lexer.my_token import Token
 
@@ -197,7 +197,7 @@ class Parser:
             node = self._break_statement()
         elif is_cycle_body and self._is_specific_token(Token.BUILTIN_WORD, Token.BUILTIN_WORDS["CONTINUE"]):
             node = self._continue_statement()
-        elif self._is_specific_token(Token.ID):  # todo set regexp to value to check var validity
+        elif self._is_specific_token(Token.ID):
             node = self._assignment_statement()
 
         if node is None:
@@ -423,9 +423,13 @@ class Parser:
             self._check(Token.OPERATION, Token.OPERATIONS["MINUS"])
             node = UnOpAST(token, self._factor())
 
-        elif token.tok_type == Token.NUMBER_DECIMAL:  # todo maybe handle binary num too
+        elif token.tok_type == Token.NUMBER_DECIMAL:
             self._check(Token.NUMBER_DECIMAL)
             node = DecimalAST(token)
+
+        elif token.tok_type == Token.NUMBER_BINARY:
+            self._check(Token.NUMBER_BINARY)
+            node = BinaryAST(token)
 
         elif token.tok_type == Token.STRING:
             self._check(Token.STRING)

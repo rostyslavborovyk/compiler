@@ -151,7 +151,6 @@ class Interpreter:
         if not len(self.cycle_labels_list):
             raise InvalidSyntaxException("Statement break should be used inside of a loop")
 
-        # todo redo to process continue and break
         self.code_generator.add(f"jmp {self.cycle_labels_list[-1].end}")
 
     def _visit_ContinueStatementAST(self, node: ContinueStatementAST, **kwargs) -> None:
@@ -162,7 +161,6 @@ class Interpreter:
         if not len(self.cycle_labels_list):
             raise InvalidSyntaxException("Statement break should be used inside of a loop")
 
-        # todo redo to process continue and break
         self.code_generator.add(f"jmp {self.cycle_labels_list[-1].start}")
 
     def _visit_ReturnStatementAST(self, node: ReturnStatementAST, **kwargs) -> None:
@@ -257,7 +255,7 @@ class Interpreter:
 
     def _visit_BinaryAST(self, node: Union[NumAST, StringAST], **kwargs):
         print(f"visiting {node}")
-        pass
+        self.code_generator.add(f"mov eax, {node.value}")
 
     def _visit_StringAST(self, node: Union[NumAST, StringAST], **kwargs):
         print(f"visiting {node}")

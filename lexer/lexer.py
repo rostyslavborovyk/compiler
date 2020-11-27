@@ -70,7 +70,6 @@ class Lexer:
 
     def _get_multi_digit_num(self):
         """Returns num with one or more digits"""
-        # todo process decimal and bin values
         res = ""
 
         # handling binary number
@@ -82,7 +81,7 @@ class Lexer:
             while self.cur_char in "01":
                 res += self.cur_char
                 self._set_next_char()
-            self._skip_whitespace()
+            # self._skip_whitespace()
             return res
 
         # handling decimal number

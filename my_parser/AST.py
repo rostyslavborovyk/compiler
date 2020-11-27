@@ -182,6 +182,11 @@ class BinaryAST(NumAST):
     def __init__(self, *args, **kwargs):
         super(BinaryAST, self).__init__(*args, **kwargs)
 
+    def prettyAST(self, depth=0):
+        return repr(self) + "\n"
+
+    def __repr__(self):
+        return f"BinaryAST(value={self.value})"
 
 class StringAST(AST):
     def __init__(self, token: Token):
