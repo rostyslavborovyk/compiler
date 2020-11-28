@@ -188,6 +188,18 @@ class BinaryAST(NumAST):
     def __repr__(self):
         return f"BinaryAST(value={self.value})"
 
+
+class HexAST(NumAST):
+    def __init__(self, *args, **kwargs):
+        super(HexAST, self).__init__(*args, **kwargs)
+
+    def prettyAST(self, depth=0):
+        return repr(self) + "\n"
+
+    def __repr__(self):
+        return f"HexAST(value={self.value})"
+
+
 class StringAST(AST):
     def __init__(self, token: Token):
         self.token = token

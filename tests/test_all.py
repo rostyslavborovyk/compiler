@@ -104,7 +104,7 @@ class Test1(TestCase):
 
     def test_21(self):
         res = build_and_run("test_21")
-        self.assertEqual(res, "1060")
+        self.assertEqual(res, "76127")
 
     def test_22(self):
         res = build_and_run("test_22")

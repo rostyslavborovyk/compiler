@@ -232,17 +232,10 @@ class CodeGenerator:
         return res if res else string
 
     def write_to_test_file(self, output_path):
-        # adding prolog
-        # gc = [
-        #     "push rbp",
-        #     "mov rbp, rsp",
-        # ]
-        # gc.extend(self.generated_code)
-        # self.generated_code = gc
-
         # replacing 32 bit registers with 64 bit (for 64 bit systems)
         self.generated_code = map(lambda x: x.replace("eax", "rax"), self.generated_code)
         self.generated_code = map(lambda x: x.replace("ebx", "rbx"), self.generated_code)
+        self.generated_code = map(lambda x: x.replace("ecx", "rcx"), self.generated_code)
         self.generated_code = map(lambda x: x.replace("edx", "rdx"), self.generated_code)
         self.generated_code = map(lambda x: x.replace("ebp", "rbp"), self.generated_code)
         self.generated_code = map(lambda x: x.replace("esp", "rsp"), self.generated_code)
@@ -254,11 +247,7 @@ class CodeGenerator:
         self.generated_code = map(lambda x: self._double_ret(x), self.generated_code)
 
         self.generated_code = list(self.generated_code)
-        # adding epilog
-        # self.generated_code.extend([
-        #     "mov rsp, rbp",
-        #     "pop rbp"
-        # ])
+
         generated_string = "\n\t".join(map(lambda x: f"\"{x};\"", self.generated_code))
 
         with open("build/build_template.cpp", "r") as f:

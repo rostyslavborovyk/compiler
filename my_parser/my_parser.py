@@ -2,7 +2,7 @@ from typing import List, Type
 
 from my_parser.AST import AST, StringAST, DecimalAST, BinOpAST, UnOpAST, AssignExpAST, StatementsListAST, IdAST, \
     CondStatementAST, FunctionAST, FunctionCallAST, ProgramAST, WhileStatementAST, BreakStatementAST, \
-    ContinueStatementAST, ReturnStatementAST, CompOpAST, BinaryAST
+    ContinueStatementAST, ReturnStatementAST, CompOpAST, BinaryAST, HexAST
 from exceptions.my_exceptions import InvalidSyntaxException, EOF
 from lexer.my_token import Token
 
@@ -126,12 +126,18 @@ class Parser:
         if self._is_specific_token(Token.R_BRACKET):
             self._check(Token.R_BRACKET)
             node = FunctionCallAST(func_id)
-        elif self._is_specific_token(Token.ID) or self._is_specific_token(Token.NUMBER_DECIMAL):
+        elif self._is_specific_token(Token.ID) \
+                or self._is_specific_token(Token.NUMBER_HEX) \
+                or self._is_specific_token(Token.NUMBER_DECIMAL) \
+                or self._is_specific_token(Token.NUMBER_BINARY):
             arg_list = [self.current_token]
             self._check(self.current_token.tok_type)
             while self._is_specific_token(Token.COMMA):
                 self._check(Token.COMMA)
-                if self._is_specific_token(Token.ID) or self._is_specific_token(Token.NUMBER_DECIMAL):
+                if self._is_specific_token(Token.ID) \
+                        or self._is_specific_token(Token.NUMBER_HEX) \
+                        or self._is_specific_token(Token.NUMBER_DECIMAL) \
+                        or self._is_specific_token(Token.NUMBER_BINARY):
                     arg_list.append(self.current_token)
                     self._check(self.current_token.tok_type)
                 else:
@@ -430,6 +436,10 @@ class Parser:
         elif token.tok_type == Token.NUMBER_BINARY:
             self._check(Token.NUMBER_BINARY)
             node = BinaryAST(token)
+
+        elif token.tok_type == Token.NUMBER_HEX:
+            self._check(Token.NUMBER_HEX)
+            node = HexAST(token)
 
         elif token.tok_type == Token.STRING:
             self._check(Token.STRING)

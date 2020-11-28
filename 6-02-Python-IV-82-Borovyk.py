@@ -12,7 +12,7 @@ def is_prime(n):
 def main(start, end):
     summ = 0
     curr = start
-    # checks all numbers in range (start, end), if number is prime then adds it value to summ
+    # checks all numbers in range (start, end), if number is prime then adds it's value to summ
     while curr <= end:
         if is_prime(curr):
             summ += curr
@@ -22,4 +22,4 @@ def main(start, end):
     return summ
 
 
-main(2, 1000)
+main(2, 0b10100)

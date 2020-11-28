@@ -13,6 +13,7 @@ class Token:
     SLASH_N = "SLASH_N"
     SLASH_T = "SLASH_T"
     ASSIGN = "ASSIGN"
+    NUMBER_HEX = "NUMBER_HEX"
     NUMBER_DECIMAL = "NUMBER_DECIMAL"
     NUMBER_BINARY = "NUMBER_BINARY"
     STRING = "STRING"  # char sequence in ""

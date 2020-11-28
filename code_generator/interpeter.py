@@ -83,7 +83,7 @@ class Interpreter:
         # print("visited function call")
         if node.args:
             for arg in node.args[::-1]:
-                if arg.tok_type == Token.NUMBER_DECIMAL:
+                if arg.tok_type in (Token.NUMBER_DECIMAL, Token.NUMBER_BINARY, Token.NUMBER_HEX):
                     self.code_generator.add(f"push {arg.value}")
                 elif arg.tok_type == Token.ID:
                     self._visit(IdAST(arg.value), **kwargs)
@@ -254,6 +254,10 @@ class Interpreter:
         self.code_generator.add(f"mov eax, {node.value}")
 
     def _visit_BinaryAST(self, node: Union[NumAST, StringAST], **kwargs):
+        print(f"visiting {node}")
+        self.code_generator.add(f"mov eax, {node.value}")
+
+    def _visit_HexAST(self, node: Union[NumAST, StringAST], **kwargs):
         print(f"visiting {node}")
         self.code_generator.add(f"mov eax, {node.value}")
 

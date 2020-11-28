@@ -84,6 +84,18 @@ class Lexer:
             # self._skip_whitespace()
             return res
 
+        # handling binary number
+        if self.cur_char == "0" and self._is_next_char("x"):
+            res += self.cur_char  # appending "0"
+            self._set_next_char()
+            res += self.cur_char  # appending "x"
+            self._set_next_char()
+            while self.cur_char in "0123456789abcdef":
+                res += self.cur_char
+                self._set_next_char()
+            # self._skip_whitespace()
+            return res
+
         # handling decimal number
         while self.cur_char.isdigit() and self.cur_char is not EOF:
             res += self.cur_char
@@ -180,6 +192,10 @@ class Lexer:
         # binary number
         elif lexeme[:2] == "0b":
             tok_type = Token.NUMBER_BINARY
+
+        # binary number
+        elif lexeme[:2] == "0x":
+            tok_type = Token.NUMBER_HEX
 
         # token for builtin names
         elif lexeme.isalpha() and lexeme in Token.BUILTIN_WORDS.values():
