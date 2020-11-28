@@ -1,5 +1,25 @@
-def main():
-    return (0b1010 + 0b10) / 0b100
+def is_prime(n):
+    curr = 2
+    # checks mod of all numbers from 2 end n-1, if mod == 0 then number is not prime
+    while curr < n:
+        if n % curr == 0:
+            return 0
+        else:
+            curr += 1
+    return 1
 
 
-main()
+def main(start, end):
+    summ = 0
+    curr = start
+    # checks all numbers in range (start, end), if number is prime then adds it value to summ
+    while curr <= end:
+        if is_prime(curr):
+            summ += curr
+            curr += 1
+        else:
+            curr += 1
+    return summ
+
+
+main(2, 1000)

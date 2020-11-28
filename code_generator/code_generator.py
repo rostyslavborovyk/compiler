@@ -109,8 +109,9 @@ class CodeGenerator:
         right()
         self.add("push eax")
         self.add("pop ebx")
-        self.add("pop eax")
-        self.add("cmp eax, ebx")
+        self.add("pop ecx")
+        self.add("xor eax, eax")
+        self.add("cmp ecx, ebx")
         self.add("sete al")
 
     def neq_op(self, left: Callable[[], None], right: Callable[[], None]) -> None:
@@ -119,8 +120,9 @@ class CodeGenerator:
         right()
         self.add("push eax")
         self.add("pop ebx")
-        self.add("pop eax")
-        self.add("cmp eax, ebx")
+        self.add("pop ecx")
+        self.add("xor eax, eax")
+        self.add("cmp ecx, ebx")
         self.add("setne al")
 
     def gr_op(self, left: Callable[[], None], right: Callable[[], None]) -> None:
@@ -129,8 +131,9 @@ class CodeGenerator:
         right()
         self.add("push eax")
         self.add("pop ebx")
-        self.add("pop eax")
-        self.add("cmp eax, ebx")
+        self.add("pop ecx")
+        self.add("xor eax, eax")
+        self.add("cmp ecx, ebx")
         self.add("setg al")
 
     def ls_op(self, left: Callable[[], None], right: Callable[[], None]) -> None:
@@ -139,8 +142,9 @@ class CodeGenerator:
         right()
         self.add("push eax")
         self.add("pop ebx")
-        self.add("pop eax")
-        self.add("cmp eax, ebx")
+        self.add("pop ecx")
+        self.add("xor eax, eax")
+        self.add("cmp ecx, ebx")
         self.add("setl al")
 
     def gre_op(self, left: Callable[[], None], right: Callable[[], None]) -> None:
@@ -149,8 +153,9 @@ class CodeGenerator:
         right()
         self.add("push eax")
         self.add("pop ebx")
-        self.add("pop eax")
-        self.add("cmp eax, ebx")
+        self.add("pop ecx")
+        self.add("xor eax, eax")
+        self.add("cmp ecx, ebx")
         self.add("setge al")
 
     def lse_op(self, left: Callable[[], None], right: Callable[[], None]) -> None:
@@ -159,8 +164,9 @@ class CodeGenerator:
         right()
         self.add("push eax")
         self.add("pop ebx")
-        self.add("pop eax")
-        self.add("cmp eax, ebx")
+        self.add("pop ecx")
+        self.add("xor eax, eax")
+        self.add("cmp ecx, ebx")
         self.add("setle al")
 
     def logical_or_op(self, left: Callable[[], None], right: Callable[[], None]) -> None:

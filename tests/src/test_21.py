@@ -5,7 +5,7 @@ def is_prime(n):
         if n % curr == 0:
             return 0
         else:
-            curr = curr + 1
+            curr += 1
     return 1
 
 
@@ -15,11 +15,11 @@ def main(start, end):
     # checks all numbers in range (start, end), if number is prime then adds it value to summ
     while curr <= end:
         if is_prime(curr):
-            summ = summ + curr
-            curr = curr + 1
+            summ += curr
+            curr += 1
         else:
-            curr = curr + 1
+            curr += 1
     return summ
 
 
-main(2, 100)
+main(2, 1000)
