@@ -198,10 +198,28 @@ class CodeGenerator:
 
         self.add(f"{l4}:")
 
-    def write_to_file(self):
+    def write_to_asm_file(self, path, system_arch):
+        if system_arch == 64:
+            self._convert_generated_code_to_64_arch()
         generated_string = "\n".join(self.generated_code)
-        with open("6-02-Python-IV-82-Borovyk.asm", "w") as f:
+        with open(path, "w") as f:
             f.write(generated_string)
+
+    def _convert_generated_code_to_64_arch(self):
+        # replacing 32 bit registers with 64 bit (for 64 bit systems)
+        self.generated_code = map(lambda x: x.replace("eax", "rax"), self.generated_code)
+        self.generated_code = map(lambda x: x.replace("ebx", "rbx"), self.generated_code)
+        self.generated_code = map(lambda x: x.replace("ecx", "rcx"), self.generated_code)
+        self.generated_code = map(lambda x: x.replace("edx", "rdx"), self.generated_code)
+        self.generated_code = map(lambda x: x.replace("ebp", "rbp"), self.generated_code)
+        self.generated_code = map(lambda x: x.replace("esp", "rsp"), self.generated_code)
+        self.generated_code = map(lambda x: x.replace("cdq", "cqo"), self.generated_code)
+
+        # doubling the offset from 4 bytes per var to 8 bytes (for 64 bit systems)
+        self.generated_code = map(lambda x: self._double_offset(x), self.generated_code)
+        self.generated_code = map(lambda x: self._double_outer_scope_offset(x), self.generated_code)
+        self.generated_code = map(lambda x: self._double_ret(x), self.generated_code)
+        self.generated_code = list(self.generated_code)
 
     def _double_offset(self, string: str) -> str:
         # doubling 4 byte offset to 8 bytes
@@ -231,22 +249,9 @@ class CodeGenerator:
             res = re.sub(re.compile(r"\d+"), d, res)
         return res if res else string
 
-    def write_to_test_file(self, output_path):
-        # replacing 32 bit registers with 64 bit (for 64 bit systems)
-        self.generated_code = map(lambda x: x.replace("eax", "rax"), self.generated_code)
-        self.generated_code = map(lambda x: x.replace("ebx", "rbx"), self.generated_code)
-        self.generated_code = map(lambda x: x.replace("ecx", "rcx"), self.generated_code)
-        self.generated_code = map(lambda x: x.replace("edx", "rdx"), self.generated_code)
-        self.generated_code = map(lambda x: x.replace("ebp", "rbp"), self.generated_code)
-        self.generated_code = map(lambda x: x.replace("esp", "rsp"), self.generated_code)
-        self.generated_code = map(lambda x: x.replace("cdq", "cqo"), self.generated_code)
-
-        # doubling the offset from 4 bytes per var to 8 bytes (for 64 bit systems)
-        self.generated_code = map(lambda x: self._double_offset(x), self.generated_code)
-        self.generated_code = map(lambda x: self._double_outer_scope_offset(x), self.generated_code)
-        self.generated_code = map(lambda x: self._double_ret(x), self.generated_code)
-
-        self.generated_code = list(self.generated_code)
+    def write_to_cpp_file(self, output_path=None, system_arch=32, test=False):
+        if system_arch == 64:
+            self._convert_generated_code_to_64_arch()
 
         generated_string = "\n\t".join(map(lambda x: f"\"{x};\"", self.generated_code))
 
@@ -255,7 +260,11 @@ class CodeGenerator:
 
         template = template.replace("CODE", generated_string)
 
-        path = output_path or "build/main.cpp"
+        if test:
+            path = output_path or "build/main.cpp"
+
+        else:
+            path = output_path or "output.cpp"
 
         with open(path, "w") as f:
             f.write(template)

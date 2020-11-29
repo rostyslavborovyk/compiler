@@ -1,4 +1,4 @@
 #!/bin/bash
 
-python3 main.py
+python3 compiler.py
 cd build && make && ./main

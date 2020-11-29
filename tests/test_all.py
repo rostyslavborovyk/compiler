@@ -1,5 +1,5 @@
 from unittest import TestCase
-from main import main
+from compiler import compiler
 import subprocess
 from subprocess import Popen, PIPE
 
@@ -10,7 +10,7 @@ def build_and_run(file_name: str) -> str:
     with open(f"tests/src/{file_name}.py", "rb") as f:
         text = str(f.read())[2:-1]  # trims b'str' to str
     path = OUTPUT_DIR + f"{file_name}.cpp"
-    main(text, path, test=True)
+    compiler(text, system_arch=64, output_path=path, test=True)
     subprocess.run(f"g++ -masm=intel tests/dest/{file_name}.cpp -o tests/exec/{file_name}".split(" "))
 
     p = Popen([f"./tests/exec/{file_name}"], stdin=PIPE, stdout=PIPE, stderr=PIPE)

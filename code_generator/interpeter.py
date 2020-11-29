@@ -265,8 +265,9 @@ class Interpreter:
         print(f"visiting {node}")
         pass
 
-    def interpret(self, output_path, test):
+    def interpret(self, output_path, test, system_arch):
         self._visit(self.ast)
-        if not test:
-            self.code_generator.write_to_file()
-        self.code_generator.write_to_test_file(output_path)
+
+        self.code_generator.write_to_asm_file(output_path, system_arch)
+
+        self.code_generator.write_to_cpp_file(system_arch=system_arch, test=test)
