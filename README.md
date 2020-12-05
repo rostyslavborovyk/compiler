@@ -1,8 +1,8 @@
-#PYTHON COMPILER
+# PYTHON COMPILER
 
 ##### Compiles python programs to asm
 
-##Description
+## Description
 
 - compiles .py files to .asm, .cpp(with inline assembly), and executables(via g++)
 - supports:
