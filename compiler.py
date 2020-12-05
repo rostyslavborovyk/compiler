@@ -48,7 +48,7 @@ def compile_to_exec(cpp_path, exec_path, arch):
     # print(res)
 
 
-def compiler(text, arch, output_path=None, test=False):
+def compiler(text, arch, output_asm=None, test=False, output_cpp=None, output_exec=None):
     lexer = Lexer(text)
     tokens = lexer.get_tokens()
     # pprint(tokens)
@@ -56,8 +56,8 @@ def compiler(text, arch, output_path=None, test=False):
     ast = parser.parse()
     # ast.prettyAST()
     interpreter = Interpreter(ast)
-    interpreter.interpret(output_path, test, arch)
-    compile_to_exec("output.cpp", "output.exe", arch)
+    interpreter.interpret(output_asm, test, arch)
+    compile_to_exec(output_cpp, output_exec, arch)
 
 
 def main():
@@ -72,9 +72,19 @@ def main():
 
     arch = args.arch
 
+    cpp_out = "output.cpp"
+    output_exec = "output"
+
     with open(src, "rb") as f:
         program_text = str(f.read())[2:-1]  # trims b"str" to str
-    compiler(program_text, output_path=asm_out, arch=arch)
+
+    compiler(
+        program_text,
+        output_asm=asm_out,
+        output_cpp=cpp_out,
+        output_exec=output_exec,
+        arch=arch
+    )
 
 
 if __name__ == "__main__":

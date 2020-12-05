@@ -1,4 +1,5 @@
-from typing import Callable
+import copy
+from typing import Callable, List
 import re
 
 from common.types import CycleLabels
@@ -198,28 +199,24 @@ class CodeGenerator:
 
         self.add(f"{l4}:")
 
-    def write_to_asm_file(self, path, system_arch):
-        if system_arch == 64:
-            self._convert_generated_code_to_64_arch()
-        generated_string = "\n".join(self.generated_code)
-        with open(path, "w") as f:
-            f.write(generated_string)
+    def _convert_generated_code_to_64_arch(self) -> List:
+        gen_code = copy.deepcopy(self.generated_code)
 
-    def _convert_generated_code_to_64_arch(self):
         # replacing 32 bit registers with 64 bit (for 64 bit systems)
-        self.generated_code = map(lambda x: x.replace("eax", "rax"), self.generated_code)
-        self.generated_code = map(lambda x: x.replace("ebx", "rbx"), self.generated_code)
-        self.generated_code = map(lambda x: x.replace("ecx", "rcx"), self.generated_code)
-        self.generated_code = map(lambda x: x.replace("edx", "rdx"), self.generated_code)
-        self.generated_code = map(lambda x: x.replace("ebp", "rbp"), self.generated_code)
-        self.generated_code = map(lambda x: x.replace("esp", "rsp"), self.generated_code)
-        self.generated_code = map(lambda x: x.replace("cdq", "cqo"), self.generated_code)
+        gen_code = map(lambda x: x.replace("eax", "rax"), gen_code)
+        gen_code = map(lambda x: x.replace("ebx", "rbx"), gen_code)
+        gen_code = map(lambda x: x.replace("ecx", "rcx"), gen_code)
+        gen_code = map(lambda x: x.replace("edx", "rdx"), gen_code)
+        gen_code = map(lambda x: x.replace("ebp", "rbp"), gen_code)
+        gen_code = map(lambda x: x.replace("esp", "rsp"), gen_code)
+        gen_code = map(lambda x: x.replace("cdq", "cqo"), gen_code)
 
         # doubling the offset from 4 bytes per var to 8 bytes (for 64 bit systems)
-        self.generated_code = map(lambda x: self._double_offset(x), self.generated_code)
-        self.generated_code = map(lambda x: self._double_outer_scope_offset(x), self.generated_code)
-        self.generated_code = map(lambda x: self._double_ret(x), self.generated_code)
-        self.generated_code = list(self.generated_code)
+        gen_code = map(lambda x: self._double_offset(x), gen_code)
+        gen_code = map(lambda x: self._double_outer_scope_offset(x), gen_code)
+        gen_code = map(lambda x: self._double_ret(x), gen_code)
+        gen_code = list(gen_code)
+        return gen_code
 
     def _double_offset(self, string: str) -> str:
         # doubling 4 byte offset to 8 bytes
@@ -249,11 +246,20 @@ class CodeGenerator:
             res = re.sub(re.compile(r"\d+"), d, res)
         return res if res else string
 
-    def write_to_cpp_file(self, output_path=None, system_arch=32, test=False):
+    def write_to_asm_file(self, path, system_arch):
+        gen_code = self.generated_code
         if system_arch == 64:
-            self._convert_generated_code_to_64_arch()
+            gen_code = self._convert_generated_code_to_64_arch()
+        generated_string = "\n".join(gen_code)
+        with open(path, "w") as f:
+            f.write(generated_string)
 
-        generated_string = "\n\t".join(map(lambda x: f"\"{x};\"", self.generated_code))
+    def write_to_cpp_file(self, output_path=None, system_arch=32, test=False):
+        gen_code = self.generated_code
+        if system_arch == 64:
+            gen_code = self._convert_generated_code_to_64_arch()
+
+        generated_string = "\n\t".join(map(lambda x: f"\"{x};\"", gen_code))
 
         with open("build/build_template.cpp", "r") as f:
             template = f.read()

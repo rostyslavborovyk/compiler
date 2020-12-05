@@ -22,4 +22,4 @@ def main(start, end):
     return summ
 
 
-main(2, 0b10100)
+main(2, 10)

@@ -6,6 +6,7 @@ from subprocess import Popen, PIPE
 OUTPUT_DIR = "tests/dest/"
 
 
+# todo fix test running to fit new compiler interface
 def build_and_run(file_name: str) -> str:
     with open(f"tests/src/{file_name}.py", "rb") as f:
         text = str(f.read())[2:-1]  # trims b'str' to str
